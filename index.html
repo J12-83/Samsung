@@ -118,17 +118,7 @@ input:focus { outline: none; border-color: #1a1a1a; background: #fff; }
     <input type="file" id="fileInput" accept=".pdf,.ai" style="display:none" onchange="handleFile(this)"/>
   </div>
 
-  <div class="card">
-    <div class="sec-label">업체 정보</div>
-    <div class="input-row-single"><input type="text" id="company" placeholder="업체명"/></div>
-    <div class="input-row">
-      <input type="text" id="contactName" placeholder="담당자 이름"/>
-      <input type="tel" id="contactPhone" placeholder="연락처"/>
-    </div>
-    <div class="warn" id="warnInfo">업체명, 담당자 이름, 연락처를 입력해 주세요.</div>
-  </div>
-
-  <button class="submit-btn" id="submitBtn" onclick="openPopup()">다음 — 옵션 선택</button>
+  <button class="submit-btn" id="submitBtn" onclick="openPopup()" style="display:none;">다음 — 옵션 선택</button>
   <div class="success-box" id="successBox">
     <h3>주문이 접수되었습니다</h3>
     <p>담당자 확인 후 연락드리겠습니다. 감사합니다.</p>
@@ -143,6 +133,17 @@ input:focus { outline: none; border-color: #1a1a1a; background: #fff; }
     <div class="popup-file-info">
       <div class="file-badge" id="popupFileBadge" style="font-size:11px;font-weight:500;padding:3px 7px;border-radius:5px;background:#FAECE7;color:#993C1D;">PDF</div>
       <span style="font-size:13px;color:#555;" id="popupFileName"></span>
+    </div>
+
+    <!-- 업체 정보 -->
+    <div class="popup-section">
+      <div class="popup-section-label">업체 정보</div>
+      <div style="margin-bottom:8px;"><input type="text" id="company" placeholder="업체명" style="width:100%;padding:10px 12px;border:0.5px solid rgba(0,0,0,0.15);border-radius:8px;background:#f8f8f6;font-size:14px;color:#1a1a1a;"/></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <input type="text" id="contactName" placeholder="담당자 이름" style="padding:10px 12px;border:0.5px solid rgba(0,0,0,0.15);border-radius:8px;background:#f8f8f6;font-size:14px;color:#1a1a1a;"/>
+        <input type="tel" id="contactPhone" placeholder="연락처" style="padding:10px 12px;border:0.5px solid rgba(0,0,0,0.15);border-radius:8px;background:#f8f8f6;font-size:14px;color:#1a1a1a;"/>
+      </div>
+      <div class="warn" id="warnInfo">업체명, 담당자 이름, 연락처를 입력해 주세요.</div>
     </div>
 
     <div class="popup-section">
@@ -291,20 +292,19 @@ function removeFile() {
   document.getElementById('fileBox').style.display='none';
 }
 function openPopup() {
-  let ok=true;
-  if (!hasFile) { document.getElementById('warnFile').style.display='block'; ok=false; }
-  const co=document.getElementById('company').value.trim();
-  const cn=document.getElementById('contactName').value.trim();
-  const cp=document.getElementById('contactPhone').value.trim();
-  if (!co||!cn||!cp) { document.getElementById('warnInfo').style.display='block'; ok=false; }
-  else document.getElementById('warnInfo').style.display='none';
-  if (!ok) return;
+  if (!hasFile) { document.getElementById('warnFile').style.display='block'; return; }
+  document.getElementById('warnFile').style.display='none';
   document.getElementById('overlay').classList.add('show');
   document.body.style.overflow='hidden';
 }
 function closePopupOutside(e) { if (e.target===document.getElementById('overlay')) closePopup(); }
 function closePopup() { document.getElementById('overlay').classList.remove('show'); document.body.style.overflow=''; }
 async function submitOrder() {
+  const co=document.getElementById('company').value.trim();
+  const cn=document.getElementById('contactName').value.trim();
+  const cp=document.getElementById('contactPhone').value.trim();
+  if (!co||!cn||!cp) { document.getElementById('warnInfo').style.display='block'; return; }
+  document.getElementById('warnInfo').style.display='none';
   const w=document.getElementById('sizeW').value;
   const h=document.getElementById('sizeH').value;
   if (!w||!h) { document.getElementById('warnSize').style.display='block'; return; }
