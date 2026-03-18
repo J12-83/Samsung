@@ -1,645 +1,348 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>제작 주문</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: #f5f5f3;
-    color: #1a1a1a;
-    min-height: 100vh;
-    padding: 2rem 1rem;
-  }
-
-  .order-wrap {
-    max-width: 680px;
-    margin: 0 auto;
-  }
-
-  .page-title {
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    color: #888;
-    text-transform: uppercase;
-    margin-bottom: 1.25rem;
-  }
-
-  .card {
-    background: #fff;
-    border: 0.5px solid rgba(0,0,0,0.12);
-    border-radius: 12px;
-    padding: 1.25rem;
-    margin-bottom: 1rem;
-  }
-
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
-  }
-
-  .section-title {
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    color: #888;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-
-  .section-header .section-title { margin-bottom: 0; }
-
-  .guide-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 12px;
-    color: #185FA5;
-    text-decoration: none;
-    padding: 4px 10px;
-    border: 0.5px solid #B5D4F4;
-    border-radius: 8px;
-    background: #E6F1FB;
-    transition: background 0.12s;
-  }
-  .guide-link:hover { background: #B5D4F4; }
-  .guide-link svg { width: 12px; height: 12px; }
-
-  /* 업로드 */
-  .upload-zone {
-    border: 1.5px dashed rgba(0,0,0,0.25);
-    border-radius: 12px;
-    padding: 2.5rem 1rem;
-    text-align: center;
-    cursor: pointer;
-    transition: background 0.15s;
-    background: #f8f8f6;
-  }
-  .upload-zone:hover { background: #f0f0ec; }
-  .upload-icon {
-    width: 40px; height: 40px;
-    margin: 0 auto 12px;
-    background: #eee;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .upload-icon svg { width: 20px; height: 20px; stroke: #666; fill: none; }
-  .upload-text { font-size: 14px; color: #555; margin-bottom: 4px; }
-  .upload-sub  { font-size: 12px; color: #999; }
-
-  .preview-area { display: none; }
-  .preview-file-box {
-    display: flex; align-items: center; gap: 12px;
-    background: #f8f8f6;
-    border: 0.5px solid rgba(0,0,0,0.12);
-    border-radius: 8px;
-    padding: 12px 14px;
-  }
-  .file-icon {
-    width: 36px; height: 36px;
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 500; flex-shrink: 0;
-  }
-  .file-icon.pdf { background: #FAECE7; color: #993C1D; }
-  .file-icon.ai  { background: #FAEEDA; color: #854F0B; }
-  .file-name { font-size: 13px; font-weight: 500; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .file-size { font-size: 12px; color: #999; }
-  .remove-btn {
-    background: none; border: 0.5px solid rgba(0,0,0,0.2);
-    border-radius: 50%; width: 26px; height: 26px;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    font-size: 13px; color: #666; flex-shrink: 0;
-  }
-
-  .warn-badge {
-    display: none; font-size: 12px; color: #c0392b;
-    background: #fdf0ee; padding: 6px 10px;
-    border-radius: 8px; margin-top: 8px;
-  }
-
-  /* 사이즈 */
-  .size-input-row { display: flex; align-items: center; gap: 8px; }
-  .size-field-wrap { display: flex; flex-direction: column; gap: 4px; flex: 1; }
-  .size-field-label { font-size: 11px; color: #999; }
-  .size-input {
-    width: 100%; padding: 9px 10px;
-    border: 0.5px solid rgba(0,0,0,0.2);
-    border-radius: 8px; background: #f8f8f6;
-    font-size: 15px; color: #1a1a1a; text-align: center;
-  }
-  .size-input:focus { outline: none; border-color: #185FA5; background: #fff; }
-  .size-sep  { font-size: 20px; color: #aaa; padding-top: 18px; flex-shrink: 0; }
-  .size-unit { font-size: 13px; color: #aaa; padding-top: 18px; flex-shrink: 0; }
-  .size-area-badge {
-    font-size: 12px; color: #555;
-    background: #f8f8f6; border: 0.5px solid rgba(0,0,0,0.12);
-    border-radius: 8px; padding: 5px 10px;
-    margin-top: 10px; display: inline-block;
-  }
-  .size-warn { display: none; font-size: 12px; color: #c0392b; margin-top: 6px; }
-
-  /* 버튼 공통 */
-  .two-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .sel-btn {
-    padding: 14px 8px; border: 0.5px solid rgba(0,0,0,0.12);
-    border-radius: 8px; background: #f8f8f6;
-    cursor: pointer; text-align: center; transition: all 0.12s;
-  }
-  .sel-btn:hover { border-color: rgba(0,0,0,0.3); }
-  .sel-btn.active { border-color: #185FA5; background: #E6F1FB; }
-  .sel-name { font-size: 14px; font-weight: 500; color: #1a1a1a; }
-  .sel-btn.active .sel-name { color: #0C447C; }
-
-  .sub-row { display: none; margin-top: 12px; padding-top: 12px; border-top: 0.5px solid rgba(0,0,0,0.1); }
-  .sub-row.visible { display: block; }
-  .sub-label { font-size: 11px; color: #999; margin-bottom: 8px; letter-spacing: 0.06em; text-transform: uppercase; }
-  .sub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .sub-btn {
-    padding: 10px 8px; border: 0.5px solid rgba(0,0,0,0.12);
-    border-radius: 8px; background: #f8f8f6; cursor: pointer; text-align: center; transition: all 0.12s;
-  }
-  .sub-btn:hover { border-color: rgba(0,0,0,0.3); }
-  .sub-btn.active { border-color: #185FA5; background: #E6F1FB; }
-  .sub-name { font-size: 13px; font-weight: 500; color: #1a1a1a; margin-bottom: 3px; }
-  .sub-btn.active .sub-name { color: #0C447C; }
-  .sub-desc { font-size: 11px; color: #999; }
-
-  .mat-swatch { width: 28px; height: 28px; border-radius: 50%; margin: 0 auto 8px; border: 0.5px solid rgba(0,0,0,0.12); }
-  .mat-thick-tag { font-size: 11px; color: #999; margin-top: 3px; }
-  .sel-btn.active .mat-thick-tag { color: #185FA5; }
-
-  .thick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .thick-btn {
-    padding: 9px 4px; border: 0.5px solid rgba(0,0,0,0.12);
-    border-radius: 8px; background: #f8f8f6;
-    font-size: 13px; color: #666; cursor: pointer; text-align: center; transition: all 0.12s;
-  }
-  .thick-btn:hover { border-color: rgba(0,0,0,0.3); color: #1a1a1a; }
-  .thick-btn.active { border-color: #185FA5; background: #E6F1FB; color: #0C447C; font-weight: 500; }
-
-  /* 체크박스 */
-  .check-item {
-    display: flex; align-items: flex-start; gap: 12px;
-    padding: 12px 0; border-bottom: 0.5px solid rgba(0,0,0,0.08); cursor: pointer;
-  }
-  .check-item:first-child { padding-top: 0; }
-  .check-item:last-child  { border-bottom: none; padding-bottom: 0; }
-  .check-box {
-    width: 20px; height: 20px; border: 0.5px solid rgba(0,0,0,0.25);
-    border-radius: 5px; background: #f8f8f6; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center; transition: all 0.12s; margin-top: 1px;
-  }
-  .check-box.checked { background: #185FA5; border-color: #185FA5; }
-  .check-box svg { display: none; }
-  .check-box.checked svg { display: block; }
-  .check-text { flex: 1; }
-  .check-title { font-size: 14px; font-weight: 500; color: #1a1a1a; margin-bottom: 2px; }
-  .check-sub   { font-size: 12px; color: #999; }
-
-  .reduce-input-wrap { display: none; margin-top: 10px; }
-  .reduce-input-wrap.visible { display: flex; align-items: center; gap: 8px; }
-  .reduce-input {
-    width: 90px; padding: 8px 10px;
-    border: 0.5px solid rgba(0,0,0,0.2);
-    border-radius: 8px; background: #f8f8f6;
-    font-size: 14px; color: #1a1a1a; text-align: center;
-  }
-  .reduce-input:focus { outline: none; border-color: #185FA5; background: #fff; }
-  .reduce-unit { font-size: 14px; color: #666; }
-  .reduce-hint { font-size: 12px; color: #999; margin-top: 6px; display: none; }
-
-  /* 수량 */
-  .qty-row { display: flex; align-items: center; gap: 12px; }
-  .qty-btn {
-    width: 36px; height: 36px;
-    border: 0.5px solid rgba(0,0,0,0.2); border-radius: 8px;
-    background: #f8f8f6; font-size: 18px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; transition: background 0.1s; line-height: 1;
-  }
-  .qty-btn:hover { background: #eee; }
-  .qty-num { font-size: 18px; font-weight: 500; min-width: 32px; text-align: center; }
-
-  /* 가격 */
-  .price-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-  .price-label { font-size: 14px; color: #666; }
-  .price-val   { font-size: 22px; font-weight: 500; }
-  .price-note  { font-size: 12px; color: #999; margin-bottom: 16px; }
-
-  /* 제출 버튼 */
-  .submit-btn {
-    width: 100%; padding: 14px;
-    background: #1a1a1a; color: #fff;
-    border: none; border-radius: 12px;
-    font-size: 15px; font-weight: 500; cursor: pointer; transition: opacity 0.15s;
-  }
-  .submit-btn:hover { opacity: 0.85; }
-  .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  /* 완료 메시지 */
-  .success-msg {
-    display: none; text-align: center; padding: 2rem 1rem;
-    background: #E1F5EE; border: 0.5px solid #9FE1CB;
-    border-radius: 12px; margin-top: 1rem;
-  }
-  .success-msg h3 { font-size: 16px; font-weight: 500; color: #0F6E56; margin-bottom: 8px; }
-  .success-msg p  { font-size: 13px; color: #1D9E75; }
-
-  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-  input[type=range] { width: 100%; margin-top: 16px; accent-color: #185FA5; }
-
-  @media (max-width: 480px) { .row2 { grid-template-columns: 1fr; } }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f5f3; color: #1a1a1a; min-height: 100vh; padding: 2rem 1rem 4rem; }
+.wrap { max-width: 520px; margin: 0 auto; }
+.page-title { font-size: 20px; font-weight: 500; margin-bottom: 4px; }
+.page-sub { font-size: 13px; color: #999; margin-bottom: 1.5rem; }
+.card { background: #fff; border: 0.5px solid rgba(0,0,0,0.1); border-radius: 14px; padding: 1.25rem; margin-bottom: 12px; }
+.sec-label { font-size: 11px; font-weight: 500; letter-spacing: 0.07em; color: #aaa; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+.guide-link { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border: 0.5px solid #B5D4F4; border-radius: 6px; background: #E6F1FB; }
+.guide-link:hover { background: #B5D4F4; }
+.upload-zone { border: 1.5px dashed rgba(0,0,0,0.18); border-radius: 10px; padding: 2.5rem 1rem; text-align: center; cursor: pointer; background: #f8f8f6; transition: background 0.15s; }
+.upload-zone:hover, .upload-zone.drag { background: #eeeeed; }
+.upload-icon { width: 36px; height: 36px; margin: 0 auto 10px; background: #e8e8e6; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.upload-icon svg { width: 18px; height: 18px; stroke: #777; fill: none; }
+.upload-text { font-size: 14px; color: #555; margin-bottom: 3px; }
+.upload-sub { font-size: 12px; color: #bbb; }
+.file-box { display: none; align-items: center; gap: 10px; background: #f8f8f6; border: 0.5px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 10px 12px; }
+.file-badge { font-size: 11px; font-weight: 500; padding: 3px 7px; border-radius: 5px; flex-shrink: 0; }
+.file-badge.pdf { background: #FAECE7; color: #993C1D; }
+.file-badge.ai  { background: #FAEEDA; color: #854F0B; }
+.file-meta { flex: 1; overflow: hidden; }
+.file-name { font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-size { font-size: 12px; color: #999; margin-top: 1px; }
+.file-remove { background: none; border: 0.5px solid rgba(0,0,0,0.15); border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #888; flex-shrink: 0; }
+input[type=text], input[type=tel], input[type=number] { width: 100%; padding: 10px 12px; border: 0.5px solid rgba(0,0,0,0.15); border-radius: 8px; background: #f8f8f6; font-size: 14px; color: #1a1a1a; }
+input:focus { outline: none; border-color: #1a1a1a; background: #fff; }
+.input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.input-row-single { margin-bottom: 8px; }
+.input-row-size { display: flex; align-items: center; gap: 8px; }
+.input-row-size input { text-align: center; }
+.size-sep { font-size: 18px; color: #ccc; flex-shrink: 0; }
+.size-unit { font-size: 13px; color: #aaa; flex-shrink: 0; }
+.chk-group { display: grid; gap: 8px; }
+.chk-2 { grid-template-columns: 1fr 1fr; }
+.chk-3 { grid-template-columns: 1fr 1fr 1fr; }
+.chk { padding: 10px 6px; border: 0.5px solid rgba(0,0,0,0.12); border-radius: 8px; background: #f8f8f6; cursor: pointer; text-align: center; transition: all 0.12s; user-select: none; }
+.chk:hover { border-color: rgba(0,0,0,0.25); }
+.chk.on { border-color: #1a1a1a; background: #1a1a1a; }
+.chk-name { font-size: 13px; font-weight: 500; color: #1a1a1a; display: block; }
+.chk.on .chk-name { color: #fff; }
+.chk-sub { font-size: 11px; color: #bbb; display: block; margin-top: 2px; }
+.chk.on .chk-sub { color: rgba(255,255,255,0.55); }
+.qty-row { display: flex; align-items: center; gap: 10px; }
+.qty-btn { width: 34px; height: 34px; border: 0.5px solid rgba(0,0,0,0.15); border-radius: 7px; background: #f8f8f6; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #1a1a1a; line-height: 1; }
+.qty-btn:hover { background: #eee; }
+.qty-num { font-size: 18px; font-weight: 500; min-width: 30px; text-align: center; }
+.qty-unit { font-size: 13px; color: #aaa; }
+.check-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 0.5px solid rgba(0,0,0,0.06); cursor: pointer; }
+.check-item:last-child { border-bottom: none; padding-bottom: 0; }
+.check-item:first-child { padding-top: 0; }
+.chkbox { width: 18px; height: 18px; border: 0.5px solid rgba(0,0,0,0.2); border-radius: 4px; background: #f8f8f6; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 1px; transition: all 0.12s; }
+.chkbox.on { background: #1a1a1a; border-color: #1a1a1a; }
+.chkbox svg { display: none; }
+.chkbox.on svg { display: block; }
+.chk-text { flex: 1; }
+.chk-title { font-size: 14px; font-weight: 500; margin-bottom: 1px; }
+.chk-desc { font-size: 12px; color: #aaa; }
+.reduce-row { display: none; align-items: center; gap: 6px; margin-top: 8px; }
+.reduce-row.show { display: flex; }
+.reduce-input { width: 80px; padding: 7px 10px; border: 0.5px solid rgba(0,0,0,0.15); border-radius: 7px; background: #f8f8f6; font-size: 13px; text-align: center; }
+.reduce-input:focus { outline: none; border-color: #1a1a1a; background: #fff; }
+.sub-opt { display: none; margin-top: 10px; padding-top: 10px; border-top: 0.5px solid rgba(0,0,0,0.08); }
+.sub-opt.show { display: block; }
+.sub-label { font-size: 11px; color: #aaa; margin-bottom: 8px; letter-spacing: 0.05em; text-transform: uppercase; }
+.warn { display: none; font-size: 12px; color: #c0392b; background: #fdf0ee; padding: 6px 10px; border-radius: 7px; margin-top: 8px; }
+.submit-btn { width: 100%; padding: 14px; background: #1a1a1a; color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 500; cursor: pointer; transition: opacity 0.15s; margin-top: 4px; }
+.submit-btn:hover { opacity: 0.82; }
+.success-box { display: none; text-align: center; padding: 2rem; background: #eaf3de; border: 0.5px solid #c0dd97; border-radius: 12px; margin-top: 12px; }
+.success-box h3 { font-size: 16px; font-weight: 500; color: #3b6d11; margin-bottom: 6px; }
+.success-box p { font-size: 13px; color: #639922; }
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 100; align-items: flex-end; justify-content: center; }
+.overlay.show { display: flex; }
+.popup { background: #fff; border-radius: 20px 20px 0 0; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; padding: 1.5rem 1.25rem 2rem; animation: slideUp 0.28s ease; }
+@keyframes slideUp { from { transform: translateY(60px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.popup-handle { width: 36px; height: 4px; background: rgba(0,0,0,0.15); border-radius: 2px; margin: 0 auto 1.25rem; }
+.popup-title { font-size: 16px; font-weight: 500; margin-bottom: 4px; }
+.popup-sub { font-size: 13px; color: #999; margin-bottom: 1.25rem; }
+.popup-file-info { display: flex; align-items: center; gap: 8px; background: #f8f8f6; border-radius: 8px; padding: 8px 12px; margin-bottom: 1.25rem; }
+.popup-section { margin-bottom: 1.25rem; }
+.popup-section-label { font-size: 11px; font-weight: 500; letter-spacing: 0.07em; color: #aaa; text-transform: uppercase; margin-bottom: 8px; }
+.popup-confirm-btn { width: 100%; padding: 13px; background: #1a1a1a; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; margin-top: 8px; }
+.popup-confirm-btn:hover { opacity: 0.82; }
+.popup-confirm-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+@media (min-width: 521px) { .overlay { align-items: center; } .popup { border-radius: 16px; max-height: 85vh; } }
 </style>
 </head>
 <body>
-
-<div class="order-wrap">
+<div class="wrap">
   <p class="page-title">제작 주문</p>
+  <p class="page-sub">파일을 업로드하면 옵션을 선택할 수 있어요.</p>
 
-  <!-- 파일 업로드 -->
   <div class="card">
-    <div class="section-header">
-      <p class="section-title">디자인 파일 업로드</p>
+    <div class="sec-label">
+      디자인 파일 업로드
       <a class="guide-link" href="https://www.adsland.com/bbs/content.php?co_id=guide_01_01_ill_win" target="_blank">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-        </svg>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
         작업 가이드 · Illustrator
       </a>
     </div>
     <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
-      <div class="upload-icon">
-        <svg viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
-      </div>
+      <div class="upload-icon"><svg viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg></div>
       <p class="upload-text">파일을 드래그하거나 클릭하여 업로드</p>
       <p class="upload-sub">PDF, AI 파일만 지원 · 최대 50MB</p>
     </div>
-    <div class="preview-area" id="previewArea">
-      <div class="preview-file-box">
-        <div class="file-icon" id="fileIconBadge">PDF</div>
-        <div style="flex:1;overflow:hidden;">
-          <p class="file-name" id="fileName"></p>
-          <p class="file-size" id="fileSize"></p>
-        </div>
-        <button class="remove-btn" onclick="removeFile()">✕</button>
-      </div>
+    <div class="file-box" id="fileBox">
+      <div class="file-badge" id="fileBadge">PDF</div>
+      <div class="file-meta"><p class="file-name" id="fileName"></p><p class="file-size" id="fileSize"></p></div>
+      <button class="file-remove" onclick="removeFile()">✕</button>
     </div>
-    <div class="warn-badge" id="warnBadge">파일을 먼저 업로드해 주세요.</div>
-    <div class="warn-badge" id="typeWarnBadge">PDF 또는 AI 파일만 업로드할 수 있어요.</div>
-    <input type="file" id="fileInput" accept=".pdf,.ai" style="display:none" onchange="handleFile(this)" />
+    <div class="warn" id="warnFile">파일을 먼저 업로드해 주세요.</div>
+    <div class="warn" id="warnType">PDF 또는 AI 파일만 업로드할 수 있어요.</div>
+    <input type="file" id="fileInput" accept=".pdf,.ai" style="display:none" onchange="handleFile(this)"/>
   </div>
 
-  <!-- 재단 사이즈 -->
   <div class="card">
-    <p class="section-title">재단 사이즈</p>
-    <div class="size-input-row">
-      <div class="size-field-wrap">
-        <span class="size-field-label">가로 (W)</span>
-        <input class="size-input" type="number" id="sizeW" placeholder="" min="1" max="9999" oninput="onSizeInput()" />
-      </div>
-      <span class="size-sep">×</span>
-      <div class="size-field-wrap">
-        <span class="size-field-label">세로 (H)</span>
-        <input class="size-input" type="number" id="sizeH" placeholder="" min="1" max="9999" oninput="onSizeInput()" />
-      </div>
-      <span class="size-unit">mm</span>
+    <div class="sec-label">업체 정보</div>
+    <div class="input-row-single"><input type="text" id="company" placeholder="업체명"/></div>
+    <div class="input-row">
+      <input type="text" id="contactName" placeholder="담당자 이름"/>
+      <input type="tel" id="contactPhone" placeholder="연락처"/>
     </div>
-    <p class="size-warn" id="sizeWarn">올바른 사이즈를 입력해 주세요 (1–9999mm)</p>
+    <div class="warn" id="warnInfo">업체명, 담당자 이름, 연락처를 입력해 주세요.</div>
   </div>
 
-  <!-- 제작방식 + 소재 -->
-  <div class="row2">
-    <div class="card">
-      <p class="section-title">제작 방식</p>
-      <div class="two-grid">
-        <div class="sel-btn active" id="methodBak" onclick="selectMethod('박')"><p class="sel-name">박</p></div>
-        <div class="sel-btn" id="methodHyung" onclick="selectMethod('형압')"><p class="sel-name">형압</p></div>
-      </div>
-      <div class="sub-row" id="hyungSubRow">
-        <p class="sub-label">형압 방식</p>
-        <div class="sub-grid">
-          <div class="sub-btn active" id="subEmbo" onclick="selectHyungSub('엠보')">
-            <p class="sub-name">엠보</p><p class="sub-desc">볼록하게 올라옴</p>
-          </div>
-          <div class="sub-btn" id="subDibo" onclick="selectHyungSub('디보')">
-            <p class="sub-name">디보</p><p class="sub-desc">오목하게 눌림</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <p class="section-title">소재</p>
-      <div class="two-grid">
-        <div class="sel-btn active" id="matCopper" onclick="selectMat('copper')">
-          <div class="mat-swatch" style="background:linear-gradient(135deg,#b87333,#d4956a,#a0622a);"></div>
-          <p class="sel-name">구리</p><p class="mat-thick-tag">2mm</p>
-        </div>
-        <div class="sel-btn" id="matZinc" onclick="selectMat('zinc')">
-          <div class="mat-swatch" style="background:linear-gradient(135deg,#8c8c8c,#c0c0c0,#6e6e6e);"></div>
-          <p class="sel-name">아연</p><p class="mat-thick-tag" id="zincThickTag">두께 선택</p>
-        </div>
-      </div>
-      <div class="sub-row" id="thicknessRow">
-        <p class="sub-label">두께</p>
-        <div class="thick-grid">
-          <div class="thick-btn active" onclick="selectThick(this,'1.3mm')">1.3mm</div>
-          <div class="thick-btn" onclick="selectThick(this,'2mm')">2mm</div>
-          <div class="thick-btn" onclick="selectThick(this,'3mm')">3mm</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 기타 주문 사항 -->
-  <div class="card">
-    <p class="section-title">기타 주문 사항</p>
-    <div class="check-item" onclick="toggleCheck('film')">
-      <div class="check-box" id="checkFilm">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
-      <div class="check-text">
-        <p class="check-title">위치필름 필요</p>
-        <p class="check-sub">인쇄 위치 확인용 필름을 함께 제작합니다</p>
-      </div>
-    </div>
-    <div class="check-item" style="cursor:default;border-bottom:none;padding-bottom:0;">
-      <div class="check-box" id="checkReduce" onclick="toggleCheck('reduce')" style="cursor:pointer;">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
-      <div class="check-text" style="cursor:default;">
-        <p class="check-title" onclick="toggleCheck('reduce')" style="cursor:pointer;display:inline-block;">동판 축소</p>
-        <p class="check-sub">원본 대비 동판 크기를 축소하여 제작합니다</p>
-        <div class="reduce-input-wrap" id="reduceInputWrap">
-          <input class="reduce-input" type="number" id="reduceRatio" placeholder="99.8" min="1" max="99.9" step="0.1" />
-          <span class="reduce-unit">%</span>
-        </div>
-        <p class="reduce-hint" id="reduceHint">축소 비율 미기입시 99.8%로 축소</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- 업체명 -->
-  <div class="card">
-    <p class="section-title">업체명</p>
-    <input type="text" id="companyName" placeholder="업체명을 입력해 주세요" style="width:100%;padding:9px 12px;border:0.5px solid rgba(0,0,0,0.2);border-radius:8px;background:#f8f8f6;font-size:14px;color:#1a1a1a;box-sizing:border-box;" onfocus="this.style.borderColor='#185FA5';this.style.background='#fff';" onblur="this.style.borderColor='rgba(0,0,0,0.2)';this.style.background='#f8f8f6';" />
-    <div class="warn-badge" id="companyWarn">업체명을 입력해 주세요.</div>
-  </div>
-
-  <!-- 담당자 연락처 -->
-  <div class="card">
-    <p class="section-title">담당자 연락처</p>
-    <input type="text" id="contactName" placeholder="담당자 이름" style="width:100%;padding:9px 12px;border:0.5px solid rgba(0,0,0,0.2);border-radius:8px;background:#f8f8f6;font-size:14px;color:#1a1a1a;box-sizing:border-box;margin-bottom:8px;" onfocus="this.style.borderColor='#185FA5';this.style.background='#fff';" onblur="this.style.borderColor='rgba(0,0,0,0.2)';this.style.background='#f8f8f6';" />
-    <input type="tel" id="contactPhone" placeholder="연락처 (예: 010-1234-5678)" style="width:100%;padding:9px 12px;border:0.5px solid rgba(0,0,0,0.2);border-radius:8px;background:#f8f8f6;font-size:14px;color:#1a1a1a;box-sizing:border-box;" onfocus="this.style.borderColor='#185FA5';this.style.background='#fff';" onblur="this.style.borderColor='rgba(0,0,0,0.2)';this.style.background='#f8f8f6';" />
-    <div class="warn-badge" id="contactWarn">담당자 이름과 연락처를 입력해 주세요.</div>
-  </div>
-
-  <!-- 수량 -->
-  <div class="card">
-    <p class="section-title">수량</p>
-    <div class="qty-row">
-      <button class="qty-btn" onclick="changeQty(-1)">−</button>
-      <span class="qty-num" id="qtyDisplay">1</span>
-      <button class="qty-btn" onclick="changeQty(1)">+</button>
-      <span style="font-size:13px;color:#999;margin-left:4px;">개</span>
-    </div>
-    <input type="range" id="qtySlider" min="1" max="100" step="1" value="1" oninput="syncQty(this.value)" />
-    <div style="display:flex;justify-content:space-between;margin-top:4px;">
-      <span style="font-size:11px;color:#999;">1</span>
-      <span style="font-size:11px;color:#999;">100</span>
-    </div>
-  </div>
-
-  <!-- 예상 금액 + 주문하기 -->
-  <div class="card" style="border-color:rgba(0,0,0,0.2);">
-    <div class="price-row">
-      <span class="price-label">예상 금액</span>
-      <span class="price-val" id="priceDisplay">₩8,000</span>
-    </div>
-    <p class="price-note" id="priceNote"></p>
-    <button class="submit-btn" id="submitBtn" onclick="submitOrder()">주문하기</button>
-  </div>
-
-  <!-- 완료 메시지 -->
-  <div class="success-msg" id="successMsg">
+  <button class="submit-btn" id="submitBtn" onclick="openPopup()">다음 — 옵션 선택</button>
+  <div class="success-box" id="successBox">
     <h3>주문이 접수되었습니다</h3>
     <p>담당자 확인 후 연락드리겠습니다. 감사합니다.</p>
   </div>
 </div>
 
+<div class="overlay" id="overlay" onclick="closePopupOutside(event)">
+  <div class="popup" id="popup">
+    <div class="popup-handle"></div>
+    <p class="popup-title">제작 옵션 선택</p>
+    <p class="popup-sub">업로드한 파일의 제작 사양을 선택해 주세요.</p>
+    <div class="popup-file-info">
+      <div class="file-badge" id="popupFileBadge" style="font-size:11px;font-weight:500;padding:3px 7px;border-radius:5px;background:#FAECE7;color:#993C1D;">PDF</div>
+      <span style="font-size:13px;color:#555;" id="popupFileName"></span>
+    </div>
+
+    <div class="popup-section">
+      <div class="popup-section-label">재단 사이즈</div>
+      <div class="input-row-size">
+        <input type="number" id="sizeW" placeholder="가로(W)" min="1" max="9999"/>
+        <span class="size-sep">×</span>
+        <input type="number" id="sizeH" placeholder="세로(H)" min="1" max="9999"/>
+        <span class="size-unit">mm</span>
+      </div>
+      <div class="warn" id="warnSize">사이즈를 입력해 주세요.</div>
+    </div>
+
+    <div class="popup-section">
+      <div class="popup-section-label">제작 방식</div>
+      <div class="chk-group chk-2" id="methodGroup">
+        <div class="chk on" onclick="selectChk(this,'methodGroup')"><span class="chk-name">박</span></div>
+        <div class="chk" onclick="selectChk(this,'methodGroup')"><span class="chk-name">형압</span></div>
+      </div>
+      <div class="sub-opt" id="hyungSub">
+        <div class="sub-label">형압 방식</div>
+        <div class="chk-group chk-2" id="hyungGroup">
+          <div class="chk on" onclick="selectChk(this,'hyungGroup')"><span class="chk-name">엠보</span><span class="chk-sub">볼록하게 올라옴</span></div>
+          <div class="chk" onclick="selectChk(this,'hyungGroup')"><span class="chk-name">디보</span><span class="chk-sub">오목하게 눌림</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="popup-section">
+      <div class="popup-section-label">소재</div>
+      <div class="chk-group chk-2" id="matGroup">
+        <div class="chk on" onclick="selectMat(this,'copper')">
+          <div style="width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#b87333,#d4956a);margin:0 auto 6px;border:0.5px solid rgba(0,0,0,0.1);"></div>
+          <span class="chk-name">구리</span><span class="chk-sub">2mm</span>
+        </div>
+        <div class="chk" onclick="selectMat(this,'zinc')">
+          <div style="width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#8c8c8c,#c0c0c0);margin:0 auto 6px;border:0.5px solid rgba(0,0,0,0.1);"></div>
+          <span class="chk-name">아연</span><span class="chk-sub" id="zincSub">두께 선택</span>
+        </div>
+      </div>
+      <div class="sub-opt" id="thickSub">
+        <div class="sub-label">두께</div>
+        <div class="chk-group chk-3" id="thickGroup">
+          <div class="chk on" onclick="selectChk(this,'thickGroup')"><span class="chk-name">1.3mm</span></div>
+          <div class="chk" onclick="selectChk(this,'thickGroup')"><span class="chk-name">2mm</span></div>
+          <div class="chk" onclick="selectChk(this,'thickGroup')"><span class="chk-name">3mm</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="popup-section">
+      <div class="popup-section-label">수량</div>
+      <div class="qty-row">
+        <button class="qty-btn" onclick="changeQty(-1)">−</button>
+        <span class="qty-num" id="qtyNum">1</span>
+        <button class="qty-btn" onclick="changeQty(1)">+</button>
+        <span class="qty-unit">개</span>
+      </div>
+      <input type="range" id="qtySlider" min="1" max="100" step="1" value="1" style="width:100%;margin-top:12px;accent-color:#1a1a1a;" oninput="syncQty(this.value)"/>
+      <div style="display:flex;justify-content:space-between;margin-top:3px;">
+        <span style="font-size:11px;color:#bbb;">1</span>
+        <span style="font-size:11px;color:#bbb;">100</span>
+      </div>
+    </div>
+
+    <div class="popup-section">
+      <div class="popup-section-label">기타 주문 사항</div>
+      <div class="check-item" onclick="toggleCheck('film')">
+        <div class="chkbox" id="chkFilm"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="chk-text"><p class="chk-title">위치필름 필요</p><p class="chk-desc">인쇄 위치 확인용 필름을 함께 제작합니다</p></div>
+      </div>
+      <div class="check-item" style="cursor:default;border-bottom:none;padding-bottom:0;">
+        <div class="chkbox" id="chkReduce" onclick="toggleCheck('reduce')" style="cursor:pointer;"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="chk-text" style="cursor:default;">
+          <p class="chk-title" onclick="toggleCheck('reduce')" style="cursor:pointer;display:inline-block;">동판 축소</p>
+          <p class="chk-desc">원본 대비 동판 크기를 축소하여 제작합니다</p>
+          <div class="reduce-row" id="reduceRow">
+            <input class="reduce-input" type="number" id="reduceRatio" placeholder="99.8" min="1" max="99.9" step="0.1"/>
+            <span style="font-size:13px;color:#aaa;">%</span>
+          </div>
+          <p style="font-size:11px;color:#bbb;margin-top:4px;display:none;" id="reduceHint">축소 비율 미기입시 99.8%로 축소</p>
+        </div>
+      </div>
+    </div>
+
+    <button class="popup-confirm-btn" id="confirmBtn" onclick="submitOrder()">주문 접수하기</button>
+  </div>
+</div>
+
 <script>
-// =====================================================
-//  ★ Apps Script 배포 후 URL을 아래에 붙여넣으세요 ★
-// =====================================================
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzq5AFmuNjGYFLd9ZNiS6i9MX50XR3rzc_WKxReI3x4NG1Q0aX3nd_I48sOKIsIPFYL/exec";
+let qty=1, hasFile=false, uploadedFile=null;
+let currentMat='copper', currentThick='1.3mm', currentMethod='박', currentHyungSub='엠보';
+let filmOn=false, reduceOn=false;
 
-let qty = 1, hasFile = false, uploadedFile = null;
-let currentMat = 'copper', currentThick = '1.3mm';
-let currentMethod = '박', currentHyungSub = '엠보';
-let checkFilmVal = false, checkReduceVal = false;
-
+function selectChk(el, gid) {
+  document.querySelectorAll('#'+gid+' .chk').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  if (gid==='methodGroup') { currentMethod=el.querySelector('.chk-name').textContent.trim(); document.getElementById('hyungSub').classList.toggle('show',currentMethod==='형압'); }
+  if (gid==='hyungGroup') currentHyungSub=el.querySelector('.chk-name').textContent.trim();
+  if (gid==='thickGroup') { currentThick=el.querySelector('.chk-name').textContent.trim(); document.getElementById('zincSub').textContent=currentThick; }
+}
+function selectMat(el, mat) {
+  currentMat=mat;
+  document.querySelectorAll('#matGroup .chk').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('thickSub').classList.toggle('show', mat==='zinc');
+  if (mat==='zinc') document.getElementById('zincSub').textContent=currentThick;
+}
+function changeQty(d) { qty=Math.max(1,Math.min(100,qty+d)); document.getElementById('qtyNum').textContent=qty; document.getElementById('qtySlider').value=qty; }
+function syncQty(v) { qty=parseInt(v); document.getElementById('qtyNum').textContent=qty; }
 function toggleCheck(type) {
-  if (type === 'film') {
-    checkFilmVal = !checkFilmVal;
-    document.getElementById('checkFilm').classList.toggle('checked', checkFilmVal);
-  } else {
-    checkReduceVal = !checkReduceVal;
-    document.getElementById('checkReduce').classList.toggle('checked', checkReduceVal);
-    const wrap = document.getElementById('reduceInputWrap');
-    const hint = document.getElementById('reduceHint');
-    if (checkReduceVal) { wrap.classList.add('visible'); hint.style.display = 'block'; }
-    else { wrap.classList.remove('visible'); hint.style.display = 'none'; document.getElementById('reduceRatio').value = ''; }
+  if (type==='film') { filmOn=!filmOn; document.getElementById('chkFilm').classList.toggle('on',filmOn); }
+  else {
+    reduceOn=!reduceOn;
+    document.getElementById('chkReduce').classList.toggle('on',reduceOn);
+    document.getElementById('reduceRow').classList.toggle('show',reduceOn);
+    document.getElementById('reduceHint').style.display=reduceOn?'block':'none';
+    if (!reduceOn) document.getElementById('reduceRatio').value='';
   }
 }
-
-function selectMethod(m) {
-  currentMethod = m;
-  document.getElementById('methodBak').classList.toggle('active', m === '박');
-  document.getElementById('methodHyung').classList.toggle('active', m === '형압');
-  m === '형압' ? document.getElementById('hyungSubRow').classList.add('visible') : document.getElementById('hyungSubRow').classList.remove('visible');
-  updatePrice();
-}
-
-function selectHyungSub(v) {
-  currentHyungSub = v;
-  document.getElementById('subEmbo').classList.toggle('active', v === '엠보');
-  document.getElementById('subDibo').classList.toggle('active', v === '디보');
-  updatePrice();
-}
-
-function selectMat(mat) {
-  currentMat = mat;
-  document.getElementById('matCopper').classList.toggle('active', mat === 'copper');
-  document.getElementById('matZinc').classList.toggle('active', mat === 'zinc');
-  mat === 'zinc' ? document.getElementById('thicknessRow').classList.add('visible') : document.getElementById('thicknessRow').classList.remove('visible');
-  updatePrice();
-}
-
-function selectThick(el, val) {
-  currentThick = val;
-  document.querySelectorAll('.thick-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('zincThickTag').textContent = val;
-  updatePrice();
-}
-
-function changeQty(d) {
-  qty = Math.max(1, Math.min(100, qty + d));
-  document.getElementById('qtyDisplay').textContent = qty;
-  document.getElementById('qtySlider').value = qty;
-  updatePrice();
-}
-
-function syncQty(v) {
-  qty = parseInt(v);
-  document.getElementById('qtyDisplay').textContent = qty;
-  updatePrice();
-}
-
-function onSizeInput() {
-  const w = parseFloat(document.getElementById('sizeW').value);
-  const h = parseFloat(document.getElementById('sizeH').value);
-  const warn = document.getElementById('sizeWarn');
-  if (!w || !h || w < 1 || h < 1) { warn.style.display = 'block'; }
-  else { warn.style.display = 'none'; updatePrice(); }
-}
-
-function getPricePerUnit() {
-  const w = parseFloat(document.getElementById('sizeW').value) || 90;
-  const h = parseFloat(document.getElementById('sizeH').value) || 50;
-  const area = w * h;
-  let base = 500;
-  if (area > 210*297) base = 3000;
-  else if (area > 148*210) base = 2000;
-  else if (area > 105*148) base = 1200;
-  else if (area > 90*50) base = 800;
-  if (currentMethod === '형압') base += currentHyungSub === '엠보' ? 200 : 250;
-  if (currentMat === 'copper') base += 300;
-  if (currentMat === 'zinc') {
-    if (currentThick === '1.3mm') base += 100;
-    else if (currentThick === '2mm') base += 150;
-    else if (currentThick === '3mm') base += 220;
-  }
-  return base;
-}
-
-function updatePrice() {
-  const unit = getPricePerUnit(), total = unit * qty;
-  document.getElementById('priceDisplay').textContent = '₩' + total.toLocaleString();
-  document.getElementById('priceNote').textContent = qty + '개 기준 · 단가 ₩' + unit.toLocaleString() + '/개 · 부가세 포함';
-}
-
 function handleFile(input) {
-  const file = input.files[0]; if (!file) return;
-  const ext = file.name.split('.').pop().toLowerCase();
-  if (ext !== 'pdf' && ext !== 'ai') {
-    document.getElementById('typeWarnBadge').style.display = 'block'; input.value = ''; return;
-  }
-  document.getElementById('typeWarnBadge').style.display = 'none';
-  document.getElementById('warnBadge').style.display = 'none';
-  hasFile = true; uploadedFile = file;
-  document.getElementById('uploadZone').style.display = 'none';
-  document.getElementById('previewArea').style.display = 'block';
-  document.getElementById('fileName').textContent = file.name;
-  document.getElementById('fileSize').textContent = (file.size/1024).toFixed(0) + ' KB';
-  const badge = document.getElementById('fileIconBadge');
-  badge.textContent = ext === 'pdf' ? 'PDF' : 'AI';
-  badge.className = 'file-icon ' + ext;
+  const file=input.files[0]; if (!file) return;
+  const ext=file.name.split('.').pop().toLowerCase();
+  if (ext!=='pdf'&&ext!=='ai') { document.getElementById('warnType').style.display='block'; input.value=''; return; }
+  document.getElementById('warnType').style.display='none';
+  document.getElementById('warnFile').style.display='none';
+  hasFile=true; uploadedFile=file;
+  document.getElementById('uploadZone').style.display='none';
+  document.getElementById('fileBox').style.display='flex';
+  document.getElementById('fileName').textContent=file.name;
+  document.getElementById('fileSize').textContent=(file.size/1024).toFixed(0)+' KB';
+  const badge=document.getElementById('fileBadge');
+  badge.textContent=ext==='pdf'?'PDF':'AI'; badge.className='file-badge '+ext;
+  document.getElementById('popupFileName').textContent=file.name;
+  const pb=document.getElementById('popupFileBadge');
+  pb.textContent=badge.textContent; pb.className=badge.className;
+  pb.style.background=ext==='pdf'?'#FAECE7':'#FAEEDA';
+  pb.style.color=ext==='pdf'?'#993C1D':'#854F0B';
+  openPopup();
 }
-
 function removeFile() {
-  hasFile = false; uploadedFile = null;
-  document.getElementById('fileInput').value = '';
-  document.getElementById('uploadZone').style.display = 'block';
-  document.getElementById('previewArea').style.display = 'none';
+  hasFile=false; uploadedFile=null;
+  document.getElementById('fileInput').value='';
+  document.getElementById('uploadZone').style.display='block';
+  document.getElementById('fileBox').style.display='none';
 }
-
+function openPopup() {
+  let ok=true;
+  if (!hasFile) { document.getElementById('warnFile').style.display='block'; ok=false; }
+  const co=document.getElementById('company').value.trim();
+  const cn=document.getElementById('contactName').value.trim();
+  const cp=document.getElementById('contactPhone').value.trim();
+  if (!co||!cn||!cp) { document.getElementById('warnInfo').style.display='block'; ok=false; }
+  else document.getElementById('warnInfo').style.display='none';
+  if (!ok) return;
+  document.getElementById('overlay').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function closePopupOutside(e) { if (e.target===document.getElementById('overlay')) closePopup(); }
+function closePopup() { document.getElementById('overlay').classList.remove('show'); document.body.style.overflow=''; }
 async function submitOrder() {
-  if (!hasFile) { document.getElementById('warnBadge').style.display = 'block'; return; }
-  const w = document.getElementById('sizeW').value;
-  const h = document.getElementById('sizeH').value;
-  if (!w || !h) { document.getElementById('sizeWarn').style.display = 'block'; return; }
-
-  const company = document.getElementById('companyName').value.trim();
-  if (!company) { document.getElementById('companyWarn').style.display = 'block'; return; }
-  document.getElementById('companyWarn').style.display = 'none';
-
-  const contactName  = document.getElementById('contactName').value.trim();
-  const contactPhone = document.getElementById('contactPhone').value.trim();
-  if (!contactName || !contactPhone) { document.getElementById('contactWarn').style.display = 'block'; return; }
-  document.getElementById('contactWarn').style.display = 'none';
-
-  const btn = document.getElementById('submitBtn');
-  btn.disabled = true;
-  btn.textContent = '전송 중...';
-
+  const w=document.getElementById('sizeW').value;
+  const h=document.getElementById('sizeH').value;
+  if (!w||!h) { document.getElementById('warnSize').style.display='block'; return; }
+  document.getElementById('warnSize').style.display='none';
+  const btn=document.getElementById('confirmBtn');
+  btn.disabled=true; btn.textContent='전송 중...';
   try {
-    // 파일을 base64로 변환
-    let fileData = '';
-    let fileMime = '';
+    let fileData='', fileMime='';
     if (uploadedFile) {
-      fileData = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.onerror = reject;
-        reader.readAsDataURL(uploadedFile);
-      });
-      fileMime = uploadedFile.type || 'application/octet-stream';
+      fileData=await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result.split(',')[1]); r.onerror=rej; r.readAsDataURL(uploadedFile); });
+      fileMime=uploadedFile.type||'application/octet-stream';
     }
-
-    const payload = {
-      company:      company,
-      contactName:  contactName,
-      contactPhone: contactPhone,
-      sizeW:        w,
-      sizeH:       h,
-      method:      currentMethod,
-      hyungSub:    currentMethod === '형압' ? currentHyungSub : '',
-      mat:         currentMat === 'copper' ? '구리' : '아연',
-      thick:       currentMat === 'copper' ? '2mm' : currentThick,
-      qty:         qty,
-      film:        checkFilmVal,
-      reduce:      checkReduceVal,
-      reduceRatio: checkReduceVal ? (document.getElementById('reduceRatio').value || '99.8') : '',
-      fileName:    uploadedFile ? uploadedFile.name : '',
-      fileData:    fileData,
-      fileMime:    fileMime
+    const payload={
+      company: document.getElementById('company').value.trim(),
+      contactName: document.getElementById('contactName').value.trim(),
+      contactPhone: document.getElementById('contactPhone').value.trim(),
+      sizeW:w, sizeH:h, method:currentMethod,
+      hyungSub: currentMethod==='형압'?currentHyungSub:'',
+      mat: currentMat==='copper'?'구리':'아연',
+      thick: currentMat==='copper'?'2mm':currentThick,
+      qty, film:filmOn, reduce:reduceOn,
+      reduceRatio: reduceOn?(document.getElementById('reduceRatio').value||'99.8'):'',
+      fileName: uploadedFile?uploadedFile.name:'',
+      fileData, fileMime
     };
-
-    await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      mode:   'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    document.getElementById('successMsg').style.display = 'block';
-    btn.textContent = '접수 완료';
-
-  } catch (err) {
-    btn.disabled = false;
-    btn.textContent = '주문하기';
+    await fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    closePopup();
+    document.getElementById('successBox').style.display='block';
+    document.getElementById('submitBtn').style.display='none';
+  } catch(err) {
+    btn.disabled=false; btn.textContent='주문 접수하기';
     alert('전송 중 오류가 발생했습니다. 다시 시도해 주세요.');
   }
 }
-
-// 드래그 앤 드롭
-const zone = document.getElementById('uploadZone');
-zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.background = '#f0f0ec'; });
-zone.addEventListener('dragleave', () => { zone.style.background = ''; });
-zone.addEventListener('drop', e => {
-  e.preventDefault(); zone.style.background = '';
-  const file = e.dataTransfer.files[0];
-  if (file) { const dt = new DataTransfer(); dt.items.add(file); document.getElementById('fileInput').files = dt.files; handleFile(document.getElementById('fileInput')); }
-});
-
-updatePrice();
+const zone=document.getElementById('uploadZone');
+zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag');});
+zone.addEventListener('dragleave',()=>zone.classList.remove('drag'));
+zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag');const file=e.dataTransfer.files[0];if(file){const dt=new DataTransfer();dt.items.add(file);document.getElementById('fileInput').files=dt.files;handleFile(document.getElementById('fileInput'));}});
 </script>
 </body>
 </html>
