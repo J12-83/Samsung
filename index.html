@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>제작 주문</title>
+<title>일반 동판 제작 주문</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f5f3; color: #1a1a1a; min-height: 100vh; padding: 2rem 1rem 4rem; }
@@ -71,6 +71,14 @@ input:focus { outline: none; border-color: #1a1a1a; background: #fff; }
 .warn { display: none; font-size: 12px; color: #c0392b; background: #fdf0ee; padding: 6px 10px; border-radius: 7px; margin-top: 8px; }
 .submit-btn { width: 100%; padding: 14px; background: #1a1a1a; color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 500; cursor: pointer; transition: opacity 0.15s; margin-top: 4px; }
 .submit-btn:hover { opacity: 0.82; }
+.guide-notice { display: flex; align-items: flex-start; gap: 10px; background: linear-gradient(135deg, #FFF8E1 0%, #FFF3CD 100%); border: 1px solid #FFCA28; border-radius: 10px; padding: 12px 14px; margin-top: 10px; }
+.guide-notice-icon { flex-shrink: 0; width: 28px; height: 28px; background: #FFB300; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.guide-notice-icon svg { width: 15px; height: 15px; stroke: #fff; fill: none; }
+.guide-notice-text { flex: 1; }
+.guide-notice-text strong { font-size: 13px; font-weight: 600; color: #E65100; display: block; margin-bottom: 2px; }
+.guide-notice-text p { font-size: 12px; color: #795548; line-height: 1.5; margin: 0; }
+.guide-notice-text a { color: #E65100; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 .success-box { display: none; text-align: center; padding: 2rem; background: #eaf3de; border: 0.5px solid #c0dd97; border-radius: 12px; margin-top: 12px; }
 .success-box h3 { font-size: 16px; font-weight: 500; color: #3b6d11; margin-bottom: 6px; }
 .success-box p { font-size: 13px; color: #639922; }
@@ -92,7 +100,7 @@ input:focus { outline: none; border-color: #1a1a1a; background: #fff; }
 </head>
 <body>
 <div class="wrap">
-  <p class="page-title">제작 주문</p>
+  <p class="page-title">일반 동판 제작 주문</p>
   <p class="page-sub">파일을 업로드하면 옵션을 선택할 수 있어요.</p>
 
   <div class="card">
@@ -112,6 +120,13 @@ input:focus { outline: none; border-color: #1a1a1a; background: #fff; }
       <div class="file-badge" id="fileBadge">PDF</div>
       <div class="file-meta"><p class="file-name" id="fileName"></p><p class="file-size" id="fileSize"></p></div>
       <button class="file-remove" onclick="removeFile()">✕</button>
+    </div>
+    <div class="guide-notice" id="guideNotice">
+      <div class="guide-notice-icon"><svg viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M12 3l9.66 16.59A1 1 0 0120.66 21H3.34a1 1 0 01-.86-1.41L12 3z"/></svg></div>
+      <div class="guide-notice-text">
+        <strong>⚠ 파일 업로드 전, 작업 가이드를 꼭 확인하세요!</strong>
+        <p>가이드에 맞지 않는 파일은 원하는 작업과 다른 결과가 나올 수 있습니다.<br><a href="https://j12-83.github.io/Samsung/workguide_Dongpan.html" target="_blank">작업 가이드 보기 (클릭)</a></p>
+      </div>
     </div>
     <div class="warn" id="warnFile">파일을 먼저 업로드해 주세요.</div>
     <div class="warn" id="warnType">PDF 또는 AI 파일만 업로드할 수 있어요.</div>
