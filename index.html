@@ -296,7 +296,7 @@ input:focus { outline: none; border-color: #1a1a1a; background: #fff; }
   </div>
 
 <script>
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzq5AFmuNjGYFLd9ZNiS6i9MX50XR3rzc_WKxReI3x4NG1Q0aX3nd_I48sOKIsIPFYL/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwyd_KaHl_ONBJPVP6gS5rIGexf5vX5DTG7uKBzvXVjNPZfGG-gRixwBeK86z1TM_Go/exec";
 let qty=1, hasFile=false, uploadedFile=null, uploadedFiles=[];
 let currentMat='copper', currentThick='1.3mm', currentMethod='박', currentHyungSub='엠보';
 let filmOn=false, reduceOn=false, currentDelivery='퀵';
@@ -446,14 +446,9 @@ async function submitOrder() {
   const btn=document.getElementById('finalSubmitBtn');
   btn.disabled=true; btn.textContent='전송 중...';
   try {
-    // 모든 파일을 base64로 변환
-    var filesData = [];
-    for (var fi=0; fi<uploadedFiles.length; fi++) {
-      var uf=uploadedFiles[fi];
-      var fd=await new Promise(function(res,rej){ var r=new FileReader(); r.onload=function(){res(r.result.split(',')[1]);}; r.onerror=rej; r.readAsDataURL(uf); });
-      filesData.push({ fileName: uf.name, fileData: fd, fileMime: uf.type||'application/octet-stream' });
-    }
-    const payload={
+    // 1단계: 주문 데이터 전송 (파일 없이)
+    const orderPayload={
+      action: 'createOrder',
       company: document.getElementById('company').value.trim(),
       contactName: document.getElementById('contactName').value.trim(),
       contactPhone: document.getElementById('contactPhone').value.trim(),
@@ -462,14 +457,30 @@ async function submitOrder() {
       mat: currentMat==='copper'?'구리':'아연',
       thick: currentMat==='copper'?'2mm':currentThick,
       qty, film:filmOn, reduce:reduceOn,
-      reduceRatio: reduceOn ? (document.getElementById('reduceRatio').value || '99.8') + '%' : '해당없음',
+      reduceRatio: reduceOn ? (document.getElementById('reduceRatio').value || '99.8') : '-',
       delivery: currentDelivery,
-      fileName: uploadedFiles.map(function(f){return f.name;}).join(', '),
-      fileData: filesData.length>0?filesData[0].fileData:'',
-      fileMime: filesData.length>0?filesData[0].fileMime:'',
-      files: filesData
+      fileCount: uploadedFiles.length
     };
-    await fetch(APPS_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+    const orderRes = await fetch(APPS_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(orderPayload)});
+    const orderResult = await orderRes.json();
+
+    // 2단계: 파일을 하나씩 개별 전송
+    if (orderResult.result === 'success' && uploadedFiles.length > 0) {
+      for (var fi=0; fi<uploadedFiles.length; fi++) {
+        var uf=uploadedFiles[fi];
+        var fd=await new Promise(function(res,rej){ var r=new FileReader(); r.onload=function(){res(r.result.split(',')[1]);}; r.onerror=rej; r.readAsDataURL(uf); });
+        var filePayload = {
+          action: 'uploadFile',
+          folderId: orderResult.folderId,
+          orderRow: orderResult.row,
+          fileName: uf.name,
+          fileData: fd,
+          fileMime: uf.type||'application/octet-stream'
+        };
+        await fetch(APPS_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(filePayload)});
+      }
+    }
+    const payload = orderPayload;
 
     // 접수 완료 화면에 주문 내용 표시
     const methodLabel = currentMethod==='형압' ? '형압 · '+currentHyungSub : '박';
