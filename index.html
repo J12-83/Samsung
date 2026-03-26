@@ -469,7 +469,7 @@ async function submitOrder() {
       fileMime: filesData.length>0?filesData[0].fileMime:'',
       files: filesData
     };
-    await fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    await fetch(APPS_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
 
     // 접수 완료 화면에 주문 내용 표시
     const methodLabel = currentMethod==='형압' ? '형압 · '+currentHyungSub : '박';
