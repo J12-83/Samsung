@@ -462,7 +462,7 @@ async function submitOrder() {
       mat: currentMat==='copper'?'구리':'아연',
       thick: currentMat==='copper'?'2mm':currentThick,
       qty, film:filmOn, reduce:reduceOn,
-      reduceRatio: reduceOn?(document.getElementById('reduceRatio').value||'99.8'):'',
+      reduceRatio: reduceOn ? (document.getElementById('reduceRatio').value || '99.8') + '%' : '해당없음',
       delivery: currentDelivery,
       fileName: uploadedFiles.map(function(f){return f.name;}).join(', '),
       fileData: filesData.length>0?filesData[0].fileData:'',
