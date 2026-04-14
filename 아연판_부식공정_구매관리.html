@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>아연판 부식공정 구매관리 시스템</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; background: #f0f2f5; color: #333; }
+
+/* Navigation */
+.nav { background: #1a237e; color: #fff; display: flex; align-items: center; padding: 0 24px; height: 56px; position: fixed; top: 0; left: 0; right: 0; z-index: 100; }
+.nav h1 { font-size: 18px; font-weight: 700; margin-right: 32px; white-space: nowrap; }
+.nav-tabs { display: flex; gap: 4px; }
+.nav-tab { background: transparent; border: none; color: rgba(255,255,255,0.7); padding: 8px 20px; cursor: pointer; font-size: 14px; border-radius: 8px 8px 0 0; transition: all .2s; font-family: inherit; }
+.nav-tab:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.nav-tab.active { background: rgba(255,255,255,0.2); color: #fff; font-weight: 700; }
+
+/* Main */
+.main { margin-top: 56px; padding: 24px; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* Cards */
+.card { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 24px; margin-bottom: 20px; }
+.card-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; color: #1a237e; display: flex; align-items: center; gap: 8px; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { background: #e8eaf6; color: #1a237e; font-weight: 700; padding: 10px 8px; text-align: center; border-bottom: 2px solid #c5cae9; white-space: nowrap; }
+td { padding: 8px; border-bottom: 1px solid #e0e0e0; text-align: center; vertical-align: middle; }
+tr:hover { background: #f5f5f5; }
+
+/* Forms */
+.form-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 16px; }
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+.form-group label { font-size: 12px; font-weight: 600; color: #666; }
+.form-group input, .form-group select { padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; font-family: inherit; }
+.form-group input:focus, .form-group select:focus { outline: none; border-color: #3f51b5; box-shadow: 0 0 0 2px rgba(63,81,181,0.2); }
+
+/* Buttons */
+.btn { padding: 8px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; font-family: inherit; transition: all .2s; }
+.btn-primary { background: #3f51b5; color: #fff; }
+.btn-primary:hover { background: #303f9f; }
+.btn-danger { background: #e53935; color: #fff; }
+.btn-danger:hover { background: #c62828; }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+.btn-success { background: #43a047; color: #fff; }
+.btn-success:hover { background: #2e7d32; }
+
+/* Status badges */
+.badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; display: inline-block; }
+.badge-good { background: #e8f5e9; color: #2e7d32; }
+.badge-ok { background: #e3f2fd; color: #1565c0; }
+.badge-warn { background: #fff3e0; color: #e65100; }
+.badge-danger { background: #ffebee; color: #c62828; }
+.badge-none { background: #f5f5f5; color: #999; }
+
+/* Summary cards */
+.summary-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 20px; }
+.summary-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.summary-card .label { font-size: 12px; color: #888; margin-bottom: 4px; }
+.summary-card .value { font-size: 24px; font-weight: 700; color: #1a237e; }
+.summary-card .sub { font-size: 12px; color: #999; margin-top: 4px; }
+
+/* Auto-calc highlight */
+.auto-calc { background: #e8f5e9; font-weight: 600; color: #2e7d32; }
+.total-row td { background: #e8eaf6; font-weight: 700; color: #1a237e; }
+
+/* Responsive */
+.table-wrap { overflow-x: auto; }
+
+/* Modal */
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; }
+.modal-overlay.show { display: flex; }
+.modal { background: #fff; border-radius: 12px; padding: 24px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; }
+.modal h3 { margin-bottom: 16px; color: #1a237e; }
+.modal .form-group { margin-bottom: 12px; }
+.modal .form-group input, .modal .form-group select, .modal .form-group textarea { width: 100%; }
+.modal .form-group textarea { resize: vertical; min-height: 60px; padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; font-family: inherit; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+
+/* Coefficient display */
+.coeff-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; margin: 12px 0; }
+.coeff-item { background: #f5f5f5; border-radius: 6px; padding: 8px 12px; font-size: 13px; display: flex; justify-content: space-between; }
+.coeff-item .name { color: #666; }
+.coeff-item .val { font-weight: 700; color: #1a237e; }
+
+/* Export buttons */
+.toolbar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+.toolbar-right { margin-left: auto; display: flex; gap: 8px; }
+
+/* Editable cell */
+.editable { cursor: pointer; border-bottom: 1px dashed #aaa; }
+.editable:hover { background: #fff9c4; }
+
+/* Exchange rate bar */
+.fx-bar { background: linear-gradient(135deg, #1b5e20, #2e7d32); color: #fff; padding: 10px 24px; display: flex; align-items: center; gap: 16px; font-size: 13px; position: fixed; top: 56px; left: 0; right: 0; z-index: 99; height: 40px; }
+.fx-bar .fx-label { font-weight: 700; }
+.fx-bar .fx-rate { font-size: 16px; font-weight: 700; color: #b9f6ca; }
+.fx-bar .fx-time { font-size: 11px; color: rgba(255,255,255,0.7); margin-left: auto; }
+.fx-bar .fx-refresh { background: rgba(255,255,255,0.2); border: none; color: #fff; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-family: inherit; }
+.fx-bar .fx-refresh:hover { background: rgba(255,255,255,0.3); }
+.main { margin-top: 96px; padding: 24px; }
+
+/* USD price display */
+.usd-price { color: #1565c0; font-weight: 700; }
+.krw-converted { color: #888; font-size: 11px; display: block; }
+.currency-tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; margin-left: 4px; }
+.currency-tag.usd { background: #e3f2fd; color: #1565c0; }
+.currency-tag.krw { background: #f5f5f5; color: #666; }
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <h1>아연판 부식공정 구매관리</h1>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showTab('materials')">원소재 단가관리</button>
+    <button class="nav-tab" onclick="showTab('suppliers')">거래처 정보</button>
+    <button class="nav-tab" onclick="showTab('history')">입고·사용 내역</button>
+    <button class="nav-tab" onclick="showTab('inventory')">재고 현황</button>
+  </div>
+</div>
+
+<div class="fx-bar">
+  <span class="fx-label">USD/KRW 환율</span>
+  <span class="fx-rate" id="fx-rate-display">로딩중...</span>
+  <span id="fx-change-display"></span>
+  <span class="fx-time" id="fx-time-display"></span>
+  <button class="fx-refresh" onclick="fetchExchangeRate()">새로고침</button>
+</div>
+
+<div class="main">
+  <!-- Tab 1: 원소재 단가 관리 -->
+  <div id="tab-materials" class="tab-content active">
+    <div class="card">
+      <div class="card-title">원소재 구매 단가 관리 (본사)</div>
+      <div class="toolbar">
+        <button class="btn btn-primary" onclick="openMaterialModal()">+ 원소재 추가</button>
+        <div class="toolbar-right">
+          <button class="btn btn-success" onclick="exportCSV('materials')">CSV 내보내기</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>No</th><th>원소재명</th><th>공급업체</th><th>규격</th><th>구매단위</th><th>원산지</th><th>통화</th><th>단가</th><th>원화 환산</th><th>최종업데이트</th><th>월 사용량</th><th>담당자</th><th>비고</th><th>관리</th>
+            </tr>
+          </thead>
+          <tbody id="materials-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 2: 거래처 정보 -->
+  <div id="tab-suppliers" class="tab-content">
+    <div class="card">
+      <div class="card-title">거래처 정보</div>
+      <div class="toolbar">
+        <button class="btn btn-primary" onclick="openSupplierModal()">+ 거래처 추가</button>
+        <div class="toolbar-right">
+          <button class="btn btn-success" onclick="exportCSV('suppliers')">CSV 내보내기</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>No</th><th>거래처명</th><th>원소재</th><th>주소</th><th>대표</th><th>휴대폰</th><th>회사전화</th><th>팩스</th><th>이메일</th><th>결제조건</th><th>리드타임</th><th>관리</th>
+            </tr>
+          </thead>
+          <tbody id="suppliers-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 3: 입고·사용 내역 -->
+  <div id="tab-history" class="tab-content">
+    <div class="card">
+      <div class="card-title">소모 계수 (판당 원자재 소모량)</div>
+      <div class="coeff-grid" id="coeff-display"></div>
+      <p style="font-size:12px; color:#999; margin-top:4px;">* "사용" 입력 시 판수 x 소모계수로 원자재 소모량이 자동 산출됩니다</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">입고·사용 내역 등록</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>날짜</label>
+          <input type="date" id="h-date">
+        </div>
+        <div class="form-group">
+          <label>유형</label>
+          <select id="h-type">
+            <option value="">선택</option>
+            <option value="입고">입고</option>
+            <option value="사용">사용</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>아연판 규격</label>
+          <select id="h-spec">
+            <option value="">선택</option>
+            <option value="1.2T 450*500">1.2T 450*500</option>
+            <option value="2T 450*500">2T 450*500</option>
+            <option value="3T 450*500">3T 450*500</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>판수(수량)</label>
+          <input type="number" id="h-qty" min="0" step="1">
+        </div>
+        <div class="form-group">
+          <label>담당자</label>
+          <input type="text" id="h-person">
+        </div>
+        <div class="form-group">
+          <label>비고</label>
+          <input type="text" id="h-note">
+        </div>
+        <button class="btn btn-primary" onclick="addHistory()" style="align-self:flex-end;">등록</button>
+      </div>
+
+      <!-- Auto-calc preview -->
+      <div id="calc-preview" style="display:none; background:#e8f5e9; border-radius:8px; padding:12px; margin-bottom:16px; font-size:13px;">
+        <strong>자동 산출 예상:</strong> <span id="calc-preview-text"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">내역 목록</div>
+      <div class="toolbar">
+        <div class="form-group" style="flex-direction:row; align-items:center; gap:8px;">
+          <label>월 필터:</label>
+          <input type="month" id="h-filter-month" onchange="renderHistory()">
+          <button class="btn btn-sm" onclick="document.getElementById('h-filter-month').value=''; renderHistory();">전체</button>
+        </div>
+        <div class="toolbar-right">
+          <button class="btn btn-success" onclick="exportCSV('history')">CSV 내보내기</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>No</th><th>날짜</th><th>유형</th><th>아연판 규격</th><th>판수</th>
+              <th>velv etch(L)</th><th>필름(m)</th><th>질산 68%(kg)</th><th>JS첨가제(L)</th>
+              <th>PR-2000(kg)</th><th>탄산나트륨(kg)</th><th>가성소다(kg)</th>
+              <th>담당자</th><th>비고</th><th>관리</th>
+            </tr>
+          </thead>
+          <tbody id="history-body"></tbody>
+          <tfoot id="history-foot"></tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 4: 재고 현황 -->
+  <div id="tab-inventory" class="tab-content">
+    <div class="summary-row" id="inv-summary"></div>
+    <div class="card">
+      <div class="card-title">재고 현황</div>
+      <div class="toolbar">
+        <button class="btn btn-primary" onclick="openInitStockModal()">초기재고 설정</button>
+        <button class="btn btn-primary" onclick="openSafetyStockModal()">안전재고 설정</button>
+        <div class="toolbar-right">
+          <button class="btn btn-success" onclick="exportCSV('inventory')">CSV 내보내기</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>No</th><th>원소재명</th><th>공급업체</th><th>규격</th><th>구매단위</th>
+              <th>안전재고</th><th>현재재고</th><th>재고상태</th><th>단가(원)</th><th>재고금액(원)</th>
+              <th>소비처/용도</th><th>비고</th>
+            </tr>
+          </thead>
+          <tbody id="inventory-body"></tbody>
+          <tfoot id="inventory-foot"></tfoot>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">현행 관리 한계 사항</div>
+      <div id="inv-warnings" style="font-size:13px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Material Modal -->
+<div class="modal-overlay" id="material-modal">
+  <div class="modal">
+    <h3 id="material-modal-title">원소재 추가</h3>
+    <input type="hidden" id="m-edit-idx">
+    <div class="form-group"><label>원소재명</label><input type="text" id="m-name"></div>
+    <div class="form-group"><label>공급업체</label><input type="text" id="m-supplier"></div>
+    <div class="form-group"><label>규격</label><input type="text" id="m-spec"></div>
+    <div class="form-group"><label>구매단위</label><input type="text" id="m-unit"></div>
+    <div class="form-group"><label>원산지</label><input type="text" id="m-origin"></div>
+    <div class="form-group">
+      <label>통화</label>
+      <select id="m-currency" onchange="toggleUsdField()">
+        <option value="KRW">KRW (원화)</option>
+        <option value="USD">USD (달러)</option>
+      </select>
+    </div>
+    <div class="form-group" id="m-price-krw-group"><label>단가 (원)</label><input type="number" id="m-price" step="any"></div>
+    <div class="form-group" id="m-price-usd-group" style="display:none;">
+      <label>단가 (USD)</label>
+      <input type="number" id="m-priceUsd" step="any">
+      <span id="m-usd-preview" style="font-size:12px; color:#888; margin-top:4px;"></span>
+    </div>
+    <div class="form-group"><label>월 사용량</label><input type="text" id="m-monthly"></div>
+    <div class="form-group"><label>담당자</label><input type="text" id="m-person"></div>
+    <div class="form-group"><label>비고</label><textarea id="m-note"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeMaterialModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveMaterial()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Supplier Modal -->
+<div class="modal-overlay" id="supplier-modal">
+  <div class="modal">
+    <h3 id="supplier-modal-title">거래처 추가</h3>
+    <input type="hidden" id="s-edit-idx">
+    <div class="form-group"><label>거래처명</label><input type="text" id="s-name"></div>
+    <div class="form-group"><label>원소재</label><input type="text" id="s-material"></div>
+    <div class="form-group"><label>주소</label><input type="text" id="s-address"></div>
+    <div class="form-group"><label>대표</label><input type="text" id="s-ceo"></div>
+    <div class="form-group"><label>휴대폰</label><input type="text" id="s-phone"></div>
+    <div class="form-group"><label>회사전화</label><input type="text" id="s-tel"></div>
+    <div class="form-group"><label>팩스</label><input type="text" id="s-fax"></div>
+    <div class="form-group"><label>이메일</label><input type="text" id="s-email"></div>
+    <div class="form-group"><label>결제조건</label><input type="text" id="s-payment"></div>
+    <div class="form-group"><label>리드타임</label><input type="text" id="s-leadtime"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeSupplierModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveSupplier()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Init Stock Modal -->
+<div class="modal-overlay" id="initstock-modal">
+  <div class="modal">
+    <h3>초기재고 설정</h3>
+    <p style="font-size:13px; color:#666; margin-bottom:16px;">각 원자재의 시스템 도입 시점 재고를 설정합니다. 이후 입고·사용 내역에 따라 자동 계산됩니다.</p>
+    <div id="initstock-fields"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeInitStockModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveInitStock()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Safety Stock Modal -->
+<div class="modal-overlay" id="safetystock-modal">
+  <div class="modal">
+    <h3>안전재고 설정</h3>
+    <p style="font-size:13px; color:#666; margin-bottom:16px;">안전재고를 설정하면 재고 상태가 자동으로 판정됩니다.</p>
+    <div id="safetystock-fields"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeSafetyStockModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveSafetyStock()">저장</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ DATA ============
+const STORAGE_KEY = 'zinc_etching_mgmt_v1';
+
+// 소모 계수 (판당 원자재 소모량)
+const DEFAULT_COEFFICIENTS = {
+  'velv_etch': { name: 'velv etch (L)', value: 0.25 },
+  'film': { name: '필름 (m)', value: 0.32 },
+  'nitric': { name: '질산 68% (kg)', value: 4.55 },
+  'js': { name: 'JS첨가제 (L)', value: 0.15 },
+  'pr2000': { name: 'PR-2000 (kg)', value: 0.018 },
+  'sodium_carb': { name: '탄산나트륨 (kg)', value: 1.2 },
+  'caustic': { name: '가성소다 (kg)', value: 0.545 },
+};
+
+// 재고 품목 정의 (key를 inventory item과 매칭)
+const INVENTORY_ITEMS = [
+  { key: 'zinc_12', name: '아연판', supplier: '광일글로벌', spec: '1.2T 450*500', unit: '장', price: 32000, usage: '아연 부식공정', note: '월 사용량 미파악 → ROP 계산 불가' },
+  { key: 'zinc_2', name: '아연판', supplier: '광일글로벌', spec: '2T 450*500', unit: '장', price: 49000, usage: '아연 부식공정 (주력)', note: '월205판÷22일×30일=ROP≈280판' },
+  { key: 'zinc_3', name: '아연판', supplier: '광일글로벌', spec: '3T 450*500', unit: '장', price: 78000, usage: '아연 부식공정', note: '월 사용량 미파악 → ROP 계산 불가' },
+  { key: 'film_24', name: '필름', supplier: '유니테크시스템', spec: "24' 610㎜×60m", unit: '롤', price: 710000, usage: '아연 부식공정', note: '월1.3롤÷22일×20일=ROP≈1.2롤', filmSize: 60 },
+  { key: 'film_28', name: '필름', supplier: '유니테크시스템', spec: "28' 710㎜×60m", unit: '롤', price: 843000, usage: '아연 부식공정', note: '월 사용량 미파악', filmSize: 60 },
+  { key: 'film_33', name: '필름', supplier: '유니테크시스템', spec: "33' 838㎜×60m", unit: '롤', price: 993000, usage: '아연 부식공정', note: '월 사용량 미파악', filmSize: 60 },
+  { key: 'velv_etch', name: 'velv etch', supplier: '㈜그레탁이메징코리아', spec: '20L', unit: '통', priceUsd: 305, currency: 'USD', usage: '에칭 첨가제', note: '환율변동\n$305/통 (20L)', coeffKey: 'velv_etch', get price() { return currentRate ? Math.round(this.priceUsd * currentRate) : 442250; } },
+  { key: 'pr2000', name: 'PR-2000(감광액)', supplier: '㈜일광', spec: '5kg/통', unit: '통', price: 242030, usage: '감광막 형성', note: '통관비 포함', coeffKey: 'pr2000' },
+  { key: 'js', name: '아연첨가제(화인졸)', supplier: '직수입', spec: '25L', unit: '통', priceUsd: 120, currency: 'USD', usage: '에칭 첨가제', note: '환율변동\n$120/통 (25L)', coeffKey: 'js', get price() { return currentRate ? Math.round(this.priceUsd * currentRate) : 173880; } },
+  { key: 'nitric', name: '질산', supplier: '㈜삼주', spec: '68% 25kg/말', unit: 'kg', price: 670, usage: '에칭 산화', note: '', coeffKey: 'nitric' },
+  { key: 'caustic', name: '가성소다', supplier: '㈜삼주', spec: '25kg/포대', unit: 'kg', price: 1350, usage: '탈막 세척', note: '', coeffKey: 'caustic' },
+  { key: 'sodium_carb', name: '탄산나트륨', supplier: '대진상사', spec: '25kg/포대', unit: '포대', price: 50000, usage: '세척', note: '', coeffKey: 'sodium_carb' },
+];
+
+function getDefaultData() {
+  return {
+    materials: [
+      { name: '아연판', supplier: '광일글로벌', spec: '1.2T 450*500', unit: '장', origin: '중국', price: 32000, updated: '2025-09-24', monthly: '미파악', person: '정동희 대리', note: '2T가 주력: 약 90%\n1.2T, 3T는 특정 시즌 사용량 증가' },
+      { name: '아연판', supplier: '광일글로벌', spec: '2T 450*500', unit: '장', origin: '중국', price: 49000, updated: '2025-09-24', monthly: '205판', person: '', note: '' },
+      { name: '아연판', supplier: '광일글로벌', spec: '3T 450*500', unit: '장', origin: '중국', price: 78000, updated: '2025-09-24', monthly: '미파악', person: '', note: '' },
+      { name: '필름', supplier: '유니테크시스템', spec: "24' 610㎜×60m", unit: '1롤', origin: '-', price: 710000, updated: '2026-02-23', monthly: '1.3롤', person: '', note: "24'가 주력\n28' 33'는 위치필름 등에 사용" },
+      { name: '필름', supplier: '유니테크시스템', spec: "28' 710㎜×60m", unit: '1롤', origin: '-', price: 843000, updated: '2026-02-23', monthly: '미파악', person: '', note: '' },
+      { name: '필름', supplier: '유니테크시스템', spec: "33' 838㎜×60m", unit: '1롤', origin: '-', price: 993000, updated: '2026-02-23', monthly: '미파악', person: '', note: '' },
+      { name: 'velv etch', supplier: '㈜그레탁이메징코리아', spec: '20L', unit: '통', origin: '벨기에', price: 305, currency: 'USD', priceUsd: 305, updated: '2026-03-31', monthly: '66L', person: '', note: '환율변동\n$305/통 (20L)' },
+      { name: 'PR-2000(감광액)', supplier: '㈜일광', spec: '5kg/통', unit: '통', origin: '-', price: 242030, currency: 'KRW', updated: '2024-11-18', monthly: '4.4kg', person: '', note: '통관비 포함' },
+      { name: '아연첨가제(화인졸)', supplier: '직수입', spec: '25L', unit: '통', origin: '중국', price: 120, currency: 'USD', priceUsd: 120, updated: '2025-10-15', monthly: '39.6L', person: '', note: '환율변동\n$120/통 (25L)' },
+      { name: '질산', supplier: '㈜삼주', spec: '68% 25kg/말', unit: '1kg', origin: '-', price: 670, updated: '2026-03-24', monthly: '1,201kg', person: '', note: '' },
+      { name: '가성소다', supplier: '㈜삼주', spec: '25kg/포대', unit: '1kg', origin: '-', price: 1350, updated: '2026-03-24', monthly: '12kg', person: '', note: '' },
+      { name: '탄산나트륨', supplier: '대진상사', spec: '25kg/포대', unit: '포대', origin: '-', price: 50000, updated: '2025-11-18', monthly: '13.2kg', person: '', note: '' },
+    ],
+    suppliers: [
+      { name: '광일글로벌', material: '아연판', address: '서울특별시 중구 을지로18길 39-9', ceo: '김지성', phone: '010-5609-0720', tel: '02-2274-3135', fax: '02-2274-3139', email: 'dwct@naver.com', payment: '월말 마감 익월 10 결재', leadtime: '1개월' },
+      { name: '유니테크시스템', material: '필름', address: '서울특별시 금천구 가산디지털1로 2, 우림라이온스밸리 2차 404호', ceo: '윤진용', phone: '010-5324-3941', tel: '02-2027-2274', fax: '02-2027-2276', email: 'unitech2274@hanmail.net', payment: '', leadtime: '15~20일' },
+      { name: '㈜그레탁이메징코리아', material: 'velv etch', address: '서울특별시 구로구 디지털로29길 38 805호', ceo: '신동규', phone: '', tel: '02-866-2270', fax: '02-866-2303', email: 'shindk53@gmail.com', payment: '', leadtime: '재고보유시:1개월 / 미보유시:4개월' },
+      { name: '㈜일광', material: 'PR-2000(감광액)', address: '경기도 화성시 동탄기흥로 602, 7층7호', ceo: '한동훈', phone: '', tel: '070-8773-7771', fax: '070-8773-7772', email: 'kccpyo69@naver.com', payment: '', leadtime: '1개월' },
+      { name: '㈜삼주', material: '질산, 가성소다', address: '경기도 시흥시 경제로 271', ceo: '김영주', phone: '010-3112-1583', tel: '031-432-1583', fax: '031-432-1742', email: '', payment: '', leadtime: '3일' },
+      { name: '대진상사', material: '탄산나트륨', address: '서울특별시 종로구 율곡로8길 99', ceo: '곽원종', phone: '', tel: '02-766-8410', fax: '', email: 'kantoc2@naver.com', payment: '', leadtime: '3일' },
+      { name: '직수입', material: '아연첨가제(JS)', address: '-', ceo: '-', phone: '-', tel: '-', fax: '-', email: '-', payment: '', leadtime: '1개월' },
+    ],
+    history: [],
+    coefficients: JSON.parse(JSON.stringify(DEFAULT_COEFFICIENTS)),
+    initialStock: {
+      'zinc_12': 960, 'zinc_2': 460, 'zinc_3': 155,
+      'film_24': 82, 'film_28': 6, 'film_33': 3,
+      'velv_etch': 420, 'pr2000': 0, 'js': 850,
+      'nitric': 0, 'caustic': 0, 'sodium_carb': 0,
+    },
+    safetyStock: {},
+  };
+}
+
+let data = loadData();
+
+function loadData() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    try {
+      const d = JSON.parse(saved);
+      if (!d.coefficients) d.coefficients = JSON.parse(JSON.stringify(DEFAULT_COEFFICIENTS));
+      if (!d.initialStock) d.initialStock = getDefaultData().initialStock;
+      if (!d.safetyStock) d.safetyStock = {};
+      return d;
+    } catch(e) {}
+  }
+  return getDefaultData();
+}
+
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+// ============ TAB NAVIGATION ============
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'inventory') renderInventory();
+  if (name === 'history') renderHistory();
+}
+
+// ============ MATERIALS ============
+function renderMaterials() {
+  const tbody = document.getElementById('materials-body');
+  tbody.innerHTML = data.materials.map((m, i) => {
+    const isUsd = m.currency === 'USD';
+    const usdPrice = isUsd ? (m.priceUsd || 0) : null;
+    const krwConverted = isUsd && currentRate ? Math.round(usdPrice * currentRate) : null;
+    const priceDisplay = isUsd
+      ? `<span class="usd-price">$${usdPrice.toLocaleString()}</span>`
+      : `<span style="font-weight:600;">${Number(m.price).toLocaleString()}원</span>`;
+    const krwDisplay = isUsd
+      ? (krwConverted !== null
+        ? `<span style="font-weight:600;">${krwConverted.toLocaleString()}원</span><span class="krw-converted">($${usdPrice.toLocaleString()} × ₩${currentRate.toLocaleString()})</span>`
+        : `<span style="color:#e53935;">환율 로딩중</span>`)
+      : `<span style="color:#999;">-</span>`;
+    const currencyTag = isUsd
+      ? `<span class="currency-tag usd">USD</span>`
+      : `<span class="currency-tag krw">KRW</span>`;
+    return `
+    <tr${isUsd ? ' style="background:#f9fbe7;"' : ''}>
+      <td>${i+1}</td><td>${m.name}</td><td>${m.supplier}</td><td>${m.spec}</td>
+      <td>${m.unit}</td><td>${m.origin}</td>
+      <td>${currencyTag}</td>
+      <td style="text-align:right;">${priceDisplay}</td>
+      <td style="text-align:right;">${krwDisplay}</td>
+      <td>${m.updated}</td><td>${m.monthly}</td><td>${m.person}</td>
+      <td style="text-align:left; font-size:12px; max-width:200px; white-space:pre-line;">${m.note}</td>
+      <td>
+        <button class="btn btn-sm btn-primary" onclick="editMaterial(${i})">수정</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteMaterial(${i})">삭제</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openMaterialModal(idx) {
+  document.getElementById('material-modal').classList.add('show');
+  document.getElementById('material-modal-title').textContent = idx !== undefined ? '원소재 수정' : '원소재 추가';
+  document.getElementById('m-edit-idx').value = idx !== undefined ? idx : '';
+  if (idx !== undefined) {
+    const m = data.materials[idx];
+    document.getElementById('m-name').value = m.name;
+    document.getElementById('m-supplier').value = m.supplier;
+    document.getElementById('m-spec').value = m.spec;
+    document.getElementById('m-unit').value = m.unit;
+    document.getElementById('m-origin').value = m.origin;
+    document.getElementById('m-currency').value = m.currency || 'KRW';
+    document.getElementById('m-price').value = m.price;
+    document.getElementById('m-priceUsd').value = m.priceUsd || '';
+    document.getElementById('m-monthly').value = m.monthly;
+    document.getElementById('m-person').value = m.person;
+    document.getElementById('m-note').value = m.note;
+    toggleUsdField();
+  } else {
+    ['m-name','m-supplier','m-spec','m-unit','m-origin','m-price','m-priceUsd','m-monthly','m-person','m-note'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('m-currency').value = 'KRW';
+    toggleUsdField();
+  }
+}
+
+function closeMaterialModal() { document.getElementById('material-modal').classList.remove('show'); }
+
+function editMaterial(i) { openMaterialModal(i); }
+
+function saveMaterial() {
+  const currency = document.getElementById('m-currency').value;
+  const m = {
+    name: document.getElementById('m-name').value,
+    supplier: document.getElementById('m-supplier').value,
+    spec: document.getElementById('m-spec').value,
+    unit: document.getElementById('m-unit').value,
+    origin: document.getElementById('m-origin').value,
+    currency: currency,
+    price: Number(document.getElementById('m-price').value),
+    priceUsd: currency === 'USD' ? Number(document.getElementById('m-priceUsd').value) : null,
+    updated: new Date().toISOString().slice(0,10),
+    monthly: document.getElementById('m-monthly').value,
+    person: document.getElementById('m-person').value,
+    note: document.getElementById('m-note').value,
+  };
+  const idx = document.getElementById('m-edit-idx').value;
+  if (idx !== '') data.materials[Number(idx)] = m;
+  else data.materials.push(m);
+  saveData(); closeMaterialModal(); renderMaterials();
+}
+
+function deleteMaterial(i) {
+  if (confirm(`"${data.materials[i].name} (${data.materials[i].spec})" 을(를) 삭제하시겠습니까?`)) {
+    data.materials.splice(i, 1);
+    saveData(); renderMaterials();
+  }
+}
+
+// ============ SUPPLIERS ============
+function renderSuppliers() {
+  const tbody = document.getElementById('suppliers-body');
+  tbody.innerHTML = data.suppliers.map((s, i) => `
+    <tr>
+      <td>${i+1}</td><td>${s.name}</td><td>${s.material}</td>
+      <td style="text-align:left; font-size:12px; max-width:250px;">${s.address}</td>
+      <td>${s.ceo}</td><td style="font-size:12px;">${s.phone}</td><td style="font-size:12px;">${s.tel}</td>
+      <td style="font-size:12px;">${s.fax}</td><td style="font-size:12px;">${s.email}</td>
+      <td style="font-size:12px; white-space:pre-line;">${s.payment}</td><td>${s.leadtime}</td>
+      <td>
+        <button class="btn btn-sm btn-primary" onclick="editSupplier(${i})">수정</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteSupplier(${i})">삭제</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openSupplierModal(idx) {
+  document.getElementById('supplier-modal').classList.add('show');
+  document.getElementById('supplier-modal-title').textContent = idx !== undefined ? '거래처 수정' : '거래처 추가';
+  document.getElementById('s-edit-idx').value = idx !== undefined ? idx : '';
+  if (idx !== undefined) {
+    const s = data.suppliers[idx];
+    ['name','material','address','ceo','phone','tel','fax','email','payment','leadtime'].forEach(f => {
+      document.getElementById('s-' + f).value = s[f] || '';
+    });
+  } else {
+    ['s-name','s-material','s-address','s-ceo','s-phone','s-tel','s-fax','s-email','s-payment','s-leadtime'].forEach(id => document.getElementById(id).value = '');
+  }
+}
+
+function closeSupplierModal() { document.getElementById('supplier-modal').classList.remove('show'); }
+function editSupplier(i) { openSupplierModal(i); }
+
+function saveSupplier() {
+  const s = {};
+  ['name','material','address','ceo','phone','tel','fax','email','payment','leadtime'].forEach(f => {
+    s[f] = document.getElementById('s-' + f).value;
+  });
+  const idx = document.getElementById('s-edit-idx').value;
+  if (idx !== '') data.suppliers[Number(idx)] = s;
+  else data.suppliers.push(s);
+  saveData(); closeSupplierModal(); renderSuppliers();
+}
+
+function deleteSupplier(i) {
+  if (confirm(`"${data.suppliers[i].name}" 을(를) 삭제하시겠습니까?`)) {
+    data.suppliers.splice(i, 1);
+    saveData(); renderSuppliers();
+  }
+}
+
+// ============ HISTORY ============
+function calcConsumption(qty) {
+  const c = data.coefficients;
+  return {
+    velv_etch: +(qty * c.velv_etch.value).toFixed(4),
+    film: +(qty * c.film.value).toFixed(4),
+    nitric: +(qty * c.nitric.value).toFixed(4),
+    js: +(qty * c.js.value).toFixed(4),
+    pr2000: +(qty * c.pr2000.value).toFixed(4),
+    sodium_carb: +(c.sodium_carb.value).toFixed(4), // 탄산나트륨은 판수에 무관하게 고정
+    caustic: +(qty * c.caustic.value).toFixed(4),
+  };
+}
+
+function updateCalcPreview() {
+  const type = document.getElementById('h-type').value;
+  const spec = document.getElementById('h-spec').value;
+  const qty = Number(document.getElementById('h-qty').value);
+  const preview = document.getElementById('calc-preview');
+
+  if (type === '사용' && spec && qty > 0) {
+    const cons = calcConsumption(qty);
+    const c = data.coefficients;
+    document.getElementById('calc-preview-text').textContent =
+      `velv etch: ${cons.velv_etch}L, 필름: ${cons.film}m, 질산: ${cons.nitric}kg, JS첨가제: ${cons.js}L, PR-2000: ${cons.pr2000}kg, 탄산나트륨: ${cons.sodium_carb}kg, 가성소다: ${cons.caustic}kg`;
+    preview.style.display = 'block';
+  } else {
+    preview.style.display = 'none';
+  }
+}
+
+// Live preview on input change
+['h-type', 'h-spec', 'h-qty'].forEach(id => {
+  document.getElementById(id).addEventListener('change', updateCalcPreview);
+  document.getElementById(id).addEventListener('input', updateCalcPreview);
+});
+
+function addHistory() {
+  const date = document.getElementById('h-date').value;
+  const type = document.getElementById('h-type').value;
+  const spec = document.getElementById('h-spec').value;
+  const qty = Number(document.getElementById('h-qty').value);
+  const person = document.getElementById('h-person').value;
+  const note = document.getElementById('h-note').value;
+
+  if (!date || !type || !spec || !qty) { alert('날짜, 유형, 규격, 판수를 모두 입력하세요.'); return; }
+
+  const entry = { date, type, spec, qty, person, note, consumption: null };
+
+  if (type === '사용') {
+    entry.consumption = calcConsumption(qty);
+  }
+
+  data.history.push(entry);
+  saveData();
+
+  // Reset form
+  ['h-date','h-qty','h-person','h-note'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('h-type').value = '';
+  document.getElementById('h-spec').value = '';
+  document.getElementById('calc-preview').style.display = 'none';
+
+  renderHistory();
+}
+
+function deleteHistory(i) {
+  if (confirm('이 내역을 삭제하시겠습니까?')) {
+    data.history.splice(i, 1);
+    saveData(); renderHistory();
+  }
+}
+
+function renderHistory() {
+  const filterMonth = document.getElementById('h-filter-month').value;
+  const filtered = data.history.map((h, i) => ({...h, idx: i})).filter(h => {
+    if (!filterMonth) return true;
+    return h.date && h.date.startsWith(filterMonth);
+  });
+
+  const tbody = document.getElementById('history-body');
+  tbody.innerHTML = filtered.map((h, i) => {
+    const c = h.consumption;
+    const isUse = h.type === '사용';
+    const cls = isUse ? 'auto-calc' : '';
+    return `
+      <tr>
+        <td>${i+1}</td><td>${h.date}</td>
+        <td><span style="color:${isUse ? '#e53935' : '#43a047'}; font-weight:700;">${h.type}</span></td>
+        <td>${h.spec}</td><td>${h.qty}</td>
+        <td class="${cls}">${c ? c.velv_etch : ''}</td>
+        <td class="${cls}">${c ? c.film : ''}</td>
+        <td class="${cls}">${c ? c.nitric : ''}</td>
+        <td class="${cls}">${c ? c.js : ''}</td>
+        <td class="${cls}">${c ? c.pr2000 : ''}</td>
+        <td class="${cls}">${c ? c.sodium_carb : ''}</td>
+        <td class="${cls}">${c ? c.caustic : ''}</td>
+        <td>${h.person || ''}</td><td>${h.note || ''}</td>
+        <td><button class="btn btn-sm btn-danger" onclick="deleteHistory(${h.idx})">삭제</button></td>
+      </tr>`;
+  }).join('');
+
+  // Totals (사용 only)
+  const usageEntries = filtered.filter(h => h.type === '사용' && h.consumption);
+  const totals = { velv_etch: 0, film: 0, nitric: 0, js: 0, pr2000: 0, sodium_carb: 0, caustic: 0 };
+  let totalQty = 0;
+  usageEntries.forEach(h => {
+    totalQty += h.qty;
+    Object.keys(totals).forEach(k => totals[k] += Number(h.consumption[k]));
+  });
+
+  document.getElementById('history-foot').innerHTML = `
+    <tr class="total-row">
+      <td colspan="4">합계 (사용)</td><td>${totalQty}</td>
+      <td>${totals.velv_etch.toFixed(2)}</td><td>${totals.film.toFixed(2)}</td>
+      <td>${totals.nitric.toFixed(2)}</td><td>${totals.js.toFixed(2)}</td>
+      <td>${totals.pr2000.toFixed(3)}</td><td>${totals.sodium_carb.toFixed(1)}</td>
+      <td>${totals.caustic.toFixed(3)}</td>
+      <td colspan="3"></td>
+    </tr>`;
+}
+
+function renderCoefficients() {
+  const el = document.getElementById('coeff-display');
+  el.innerHTML = Object.entries(data.coefficients).map(([k, v]) =>
+    `<div class="coeff-item"><span class="name">${v.name}</span><span class="val">${v.value}</span></div>`
+  ).join('');
+}
+
+// ============ INVENTORY ============
+function calcInventory() {
+  return INVENTORY_ITEMS.map(item => {
+    let initial = data.initialStock[item.key] || 0;
+    let received = 0, used = 0;
+
+    data.history.forEach(h => {
+      // 아연판: match by spec
+      if (['zinc_12','zinc_2','zinc_3'].includes(item.key)) {
+        const specMap = { 'zinc_12': '1.2T 450*500', 'zinc_2': '2T 450*500', 'zinc_3': '3T 450*500' };
+        if (h.spec === specMap[item.key]) {
+          if (h.type === '입고') received += h.qty;
+          if (h.type === '사용') used += h.qty;
+        }
+      }
+      // 필름: consumption.film (in meters), convert to rolls (÷60m)
+      else if (['film_24','film_28','film_33'].includes(item.key) && h.type === '사용' && h.consumption) {
+        // All film usage is aggregated from consumption.film and split across film sizes
+        // For simplicity, deduct from all film types proportionally from the shared pool
+        // In the Excel, film is deducted from all 3 sizes equally based on total film meters used
+        used += h.consumption.film / item.filmSize;
+      }
+      // Chemical items: match by coeffKey
+      else if (item.coeffKey && h.type === '사용' && h.consumption) {
+        used += Number(h.consumption[item.coeffKey]);
+      }
+    });
+
+    // Handle film 입고 (by matching supplier + item name)
+    if (['film_24','film_28','film_33'].includes(item.key)) {
+      // Film 입고 would need special tracking - for now just use initial stock
+    }
+
+    const current = +(initial + received - used).toFixed(4);
+    const safety = data.safetyStock[item.key];
+    let status, statusClass;
+
+    if (safety === undefined || safety === null || safety === '') {
+      status = '안전재고 미설정';
+      statusClass = 'badge-none';
+    } else if (current <= 0) {
+      status = '소진';
+      statusClass = 'badge-danger';
+    } else if (current < safety) {
+      status = '부족';
+      statusClass = 'badge-danger';
+    } else if (current < safety * 1.5) {
+      status = '적정';
+      statusClass = 'badge-ok';
+    } else {
+      status = '충분';
+      statusClass = 'badge-good';
+    }
+
+    return {
+      ...item,
+      initial, received, used, current, safety,
+      status, statusClass,
+      stockValue: +(current * item.price).toFixed(0),
+    };
+  });
+}
+
+function renderInventory() {
+  const inv = calcInventory();
+  const tbody = document.getElementById('inventory-body');
+
+  tbody.innerHTML = inv.map((item, i) => {
+    const isUsd = item.currency === 'USD';
+    const priceCell = isUsd
+      ? `<span class="usd-price">$${item.priceUsd.toLocaleString()}</span><span class="krw-converted">≈${item.price.toLocaleString()}원</span>`
+      : `${item.price.toLocaleString()}`;
+    return `
+    <tr${isUsd ? ' style="background:#f9fbe7;"' : ''}>
+      <td>${i+1}</td><td>${item.name}</td><td>${item.supplier}</td><td>${item.spec}</td><td>${item.unit}</td>
+      <td>${item.safety !== undefined && item.safety !== null && item.safety !== '' ? item.safety : '-'}</td>
+      <td style="font-weight:700; color:${item.current < 0 ? '#e53935' : '#333'};">${item.current.toLocaleString()}</td>
+      <td><span class="badge ${item.statusClass}">${item.status}</span></td>
+      <td style="text-align:right;">${priceCell}</td>
+      <td style="text-align:right; font-weight:600;">${item.stockValue.toLocaleString()}</td>
+      <td>${item.usage}</td>
+      <td style="font-size:11px; text-align:left; max-width:200px; white-space:pre-line;">${item.note}</td>
+    </tr>`;
+  }).join('');
+
+  const totalValue = inv.reduce((s, it) => s + it.stockValue, 0);
+  document.getElementById('inventory-foot').innerHTML = `
+    <tr class="total-row">
+      <td colspan="9" style="text-align:right;">총 재고금액</td>
+      <td style="text-align:right; font-size:15px;">${totalValue.toLocaleString()} 원</td>
+      <td colspan="2"></td>
+    </tr>`;
+
+  // Summary cards
+  const warnings = inv.filter(it => it.current < 0 || it.status === '부족' || it.status === '소진');
+  const noSafety = inv.filter(it => it.status === '안전재고 미설정');
+
+  document.getElementById('inv-summary').innerHTML = `
+    <div class="summary-card">
+      <div class="label">총 재고금액</div>
+      <div class="value">${totalValue.toLocaleString()}<span style="font-size:14px;">원</span></div>
+      <div class="sub">${inv.length}개 품목</div>
+    </div>
+    <div class="summary-card" style="${warnings.length ? 'border-left:4px solid #e53935;' : ''}">
+      <div class="label">재고 부족/소진 품목</div>
+      <div class="value" style="color:${warnings.length ? '#e53935' : '#43a047'};">${warnings.length}건</div>
+      <div class="sub">${warnings.map(w => w.name + '(' + w.spec + ')').join(', ') || '없음'}</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">안전재고 미설정</div>
+      <div class="value" style="color:#ff9800;">${noSafety.length}건</div>
+      <div class="sub">${noSafety.length ? '설정 필요' : '모두 설정됨'}</div>
+    </div>
+  `;
+
+  // Warnings
+  const warningItems = [
+    { label: '아연판 1.2T', text: '월 사용량 미파악 — 시즌별 사용량 추적 필요' },
+    { label: '아연판 3T', text: '월 사용량 미파악 — 시즌별 사용량 추적 필요' },
+    { label: "필름 28'·33'", text: '월 사용량 미파악 — 위치필름 등 용도별 추적 필요' },
+    { label: 'PR-2000·질산·가성소다·탄산나트륨', text: '현재재고 현장 확인 의존 — 입출고 이력 기반 전환 필요' },
+  ];
+  document.getElementById('inv-warnings').innerHTML = warningItems.map((w, i) =>
+    `<p style="margin-bottom:8px;"><strong>${i+1}. ${w.label}</strong> — ${w.text}</p>`
+  ).join('');
+}
+
+// ============ INIT STOCK MODAL ============
+function openInitStockModal() {
+  document.getElementById('initstock-modal').classList.add('show');
+  const el = document.getElementById('initstock-fields');
+  el.innerHTML = INVENTORY_ITEMS.map(item => `
+    <div class="form-group" style="margin-bottom:8px;">
+      <label>${item.name} (${item.spec}) [${item.unit}]</label>
+      <input type="number" id="is-${item.key}" value="${data.initialStock[item.key] || 0}" step="any">
+    </div>
+  `).join('');
+}
+
+function closeInitStockModal() { document.getElementById('initstock-modal').classList.remove('show'); }
+
+function saveInitStock() {
+  INVENTORY_ITEMS.forEach(item => {
+    data.initialStock[item.key] = Number(document.getElementById('is-' + item.key).value) || 0;
+  });
+  saveData(); closeInitStockModal(); renderInventory();
+}
+
+// ============ SAFETY STOCK MODAL ============
+function openSafetyStockModal() {
+  document.getElementById('safetystock-modal').classList.add('show');
+  const el = document.getElementById('safetystock-fields');
+  el.innerHTML = INVENTORY_ITEMS.map(item => `
+    <div class="form-group" style="margin-bottom:8px;">
+      <label>${item.name} (${item.spec}) [${item.unit}]</label>
+      <input type="number" id="ss-${item.key}" value="${data.safetyStock[item.key] || ''}" step="any" placeholder="미설정">
+    </div>
+  `).join('');
+}
+
+function closeSafetyStockModal() { document.getElementById('safetystock-modal').classList.remove('show'); }
+
+function saveSafetyStock() {
+  INVENTORY_ITEMS.forEach(item => {
+    const val = document.getElementById('ss-' + item.key).value;
+    if (val !== '') data.safetyStock[item.key] = Number(val);
+    else delete data.safetyStock[item.key];
+  });
+  saveData(); closeSafetyStockModal(); renderInventory();
+}
+
+// ============ CSV EXPORT ============
+function exportCSV(type) {
+  let csv = '\uFEFF'; // BOM for Korean
+  if (type === 'materials') {
+    csv += '원소재명,공급업체,규격,구매단위,원산지,단가,최종업데이트,월사용량,담당자,비고\n';
+    data.materials.forEach(m => {
+      csv += [m.name, m.supplier, m.spec, m.unit, m.origin, m.price, m.updated, m.monthly, m.person, `"${(m.note||'').replace(/"/g,'""')}"`].join(',') + '\n';
+    });
+  } else if (type === 'suppliers') {
+    csv += '거래처명,원소재,주소,대표,휴대폰,회사전화,팩스,이메일,결제조건,리드타임\n';
+    data.suppliers.forEach(s => {
+      csv += [s.name, s.material, `"${s.address}"`, s.ceo, s.phone, s.tel, s.fax, s.email, `"${(s.payment||'').replace(/"/g,'""')}"`, s.leadtime].join(',') + '\n';
+    });
+  } else if (type === 'history') {
+    csv += '날짜,유형,아연판규격,판수,velv_etch(L),필름(m),질산68%(kg),JS첨가제(L),PR-2000(kg),탄산나트륨(kg),가성소다(kg),담당자,비고\n';
+    data.history.forEach(h => {
+      const c = h.consumption;
+      csv += [h.date, h.type, h.spec, h.qty, c?c.velv_etch:'', c?c.film:'', c?c.nitric:'', c?c.js:'', c?c.pr2000:'', c?c.sodium_carb:'', c?c.caustic:'', h.person||'', h.note||''].join(',') + '\n';
+    });
+  } else if (type === 'inventory') {
+    csv += '원소재명,공급업체,규격,구매단위,안전재고,현재재고,재고상태,단가,재고금액,소비처\n';
+    calcInventory().forEach(it => {
+      csv += [it.name, it.supplier, it.spec, it.unit, it.safety||'', it.current, it.status, it.price, it.stockValue, it.usage].join(',') + '\n';
+    });
+  }
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `아연판_구매관리_${type}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ============ EXCHANGE RATE ============
+let currentRate = null;
+let rateUpdatedAt = null;
+
+async function fetchExchangeRate() {
+  const display = document.getElementById('fx-rate-display');
+  const timeDisplay = document.getElementById('fx-time-display');
+  const changeDisplay = document.getElementById('fx-change-display');
+  display.textContent = '조회중...';
+
+  try {
+    // 한국수출입은행 환율 API (공개) - 주말/공휴일은 직전 영업일 데이터
+    const today = new Date();
+    const dateStr = today.getFullYear() +
+      String(today.getMonth()+1).padStart(2,'0') +
+      String(today.getDate()).padStart(2,'0');
+
+    // Use exchangerate-api (free, no key required)
+    const res = await fetch('https://open.er-api.com/v6/latest/USD');
+    if (!res.ok) throw new Error('API 응답 오류');
+    const json = await res.json();
+    const rate = json.rates.KRW;
+
+    if (rate) {
+      const prevRate = currentRate;
+      currentRate = Math.round(rate * 100) / 100;
+      rateUpdatedAt = new Date();
+
+      display.textContent = `₩${currentRate.toLocaleString()}`;
+      timeDisplay.textContent = `기준: ${rateUpdatedAt.toLocaleString('ko-KR')} (open.er-api.com)`;
+
+      if (prevRate && prevRate !== currentRate) {
+        const diff = currentRate - prevRate;
+        const sign = diff > 0 ? '+' : '';
+        changeDisplay.innerHTML = `<span style="color:${diff > 0 ? '#ff8a80' : '#b9f6ca'}; font-size:12px; font-weight:600;">${sign}${diff.toFixed(2)}</span>`;
+      }
+
+      // Re-render materials and inventory with new rate
+      renderMaterials();
+      renderInventory();
+
+      // Cache rate
+      localStorage.setItem('fx_usd_krw', JSON.stringify({ rate: currentRate, time: rateUpdatedAt.toISOString() }));
+    } else {
+      throw new Error('환율 데이터 없음');
+    }
+  } catch (e) {
+    // Try cached rate
+    const cached = localStorage.getItem('fx_usd_krw');
+    if (cached) {
+      const c = JSON.parse(cached);
+      currentRate = c.rate;
+      rateUpdatedAt = new Date(c.time);
+      display.textContent = `₩${currentRate.toLocaleString()}`;
+      timeDisplay.textContent = `캐시: ${rateUpdatedAt.toLocaleString('ko-KR')} (오프라인)`;
+      renderMaterials();
+      renderInventory();
+    } else {
+      display.textContent = '조회 실패';
+      timeDisplay.textContent = e.message;
+    }
+  }
+}
+
+function toggleUsdField() {
+  const isUsd = document.getElementById('m-currency').value === 'USD';
+  document.getElementById('m-price-krw-group').style.display = isUsd ? 'none' : '';
+  document.getElementById('m-price-usd-group').style.display = isUsd ? '' : 'none';
+  if (isUsd && currentRate) {
+    const usdInput = document.getElementById('m-priceUsd');
+    const preview = document.getElementById('m-usd-preview');
+    const updatePreview = () => {
+      const val = Number(usdInput.value);
+      preview.textContent = val ? `≈ ${Math.round(val * currentRate).toLocaleString()}원 (환율 ${currentRate})` : '';
+    };
+    usdInput.oninput = updatePreview;
+    updatePreview();
+  }
+}
+
+// ============ INIT ============
+document.getElementById('h-date').value = new Date().toISOString().slice(0, 10);
+
+// Load cached rate first for immediate display
+const cachedFx = localStorage.getItem('fx_usd_krw');
+if (cachedFx) {
+  const c = JSON.parse(cachedFx);
+  currentRate = c.rate;
+  rateUpdatedAt = new Date(c.time);
+}
+
+renderMaterials();
+renderSuppliers();
+renderCoefficients();
+renderHistory();
+renderInventory();
+
+// Fetch live rate
+fetchExchangeRate();
+</script>
+</body>
+</html>
