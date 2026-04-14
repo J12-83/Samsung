@@ -1,0 +1,2372 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>전시회 사전 조사 보고서 2026-04</title>
+<style>
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { height: 100%; -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont,
+      'Apple SD Gothic Neo', 'Malgun Gothic', '맑은 고딕',
+      'Noto Sans KR', sans-serif;
+    font-size: 14px;
+    background: #f4f6f9;
+    color: #333;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    word-break: keep-all;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: white;
+    padding: 24px 40px;
+    padding-top: max(24px, env(safe-area-inset-top, 0px));
+    padding-left: max(40px, env(safe-area-inset-left, 0px));
+    padding-right: max(40px, env(safe-area-inset-right, 0px));
+  }
+  .header h1 { font-size: 20px; font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
+  .header .meta { font-size: 12px; opacity: 0.75; }
+
+  /* ── Stats bar ── */
+  .stats {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    padding: 14px 40px;
+    padding-left: max(40px, env(safe-area-inset-left, 0px));
+    padding-right: max(40px, env(safe-area-inset-right, 0px));
+    background: #fff; border-bottom: 1px solid #e0e0e0;
+  }
+  .stat-card {
+    background: #f8f9fa; border-radius: 8px; padding: 10px 16px;
+    border-left: 4px solid #1a1a2e; flex: 1; min-width: 90px;
+  }
+  .stat-card .num { font-size: 22px; font-weight: 700; color: #1a1a2e; }
+  .stat-card .label { font-size: 11px; color: #888; margin-top: 2px; }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex; background: #fff;
+    border-bottom: 2px solid #e0e0e0;
+    padding: 0 40px;
+    padding-left: max(40px, env(safe-area-inset-left, 0px));
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    padding: 13px 20px; cursor: pointer; border: none;
+    background: none; font-size: 13px; font-family: inherit;
+    color: #888; border-bottom: 3px solid transparent;
+    margin-bottom: -2px; transition: color 0.15s, border-color 0.15s;
+    font-weight: 500; white-space: nowrap;
+    min-height: 44px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  .tab-btn:hover { color: #1a1a2e; }
+  .tab-btn.active { color: #1a1a2e; border-bottom-color: #1a1a2e; font-weight: 700; }
+
+  /* ── Tab content ── */
+  .tab-content { display: none; padding: 22px 40px; }
+  .tab-content.active { display: block; }
+
+  /* ── Scrollable table wrapper ── */
+  .table-scroll {
+    width: 100%; overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  /* ── Data table ── */
+  .data-table {
+    width: 100%; border-collapse: collapse;
+    background: #fff;
+    font-size: 12px;
+    min-width: 560px;
+  }
+  .data-table thead tr { background: #1a1a2e; color: white; }
+  .data-table th {
+    padding: 11px 10px; text-align: left;
+    font-weight: 600; font-size: 11px; letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+  .data-table td {
+    padding: 9px 10px; border-bottom: 1px solid #f0f0f0;
+    vertical-align: top; line-height: 1.55;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { filter: brightness(0.97); }
+
+  /* ── Utilities ── */
+  .center { text-align: center; }
+  .mono { font-family: 'Courier New', monospace; font-size: 11px; letter-spacing: 0.5px; }
+  .small-text { font-size: 11.5px; }
+  .stars { color: #f39c12; font-size: 13px; letter-spacing: 1px; }
+  .tag {
+    display: inline-block; background: #eef2ff; color: #3730a3;
+    border-radius: 4px; padding: 2px 6px; font-size: 10.5px;
+    margin: 1px; white-space: nowrap;
+  }
+  .badge {
+    display: inline-block; border-radius: 4px;
+    padding: 2px 8px; font-size: 11px; font-weight: 600;
+  }
+  .badge-confirmed { background: #d4edda; color: #155724; }
+  .badge-skipped   { background: #e2e3e5; color: #495057; }
+  .badge-scored    { background: #cce5ff; color: #004085; }
+  .grade-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 50%; width: 26px; height: 26px;
+    font-weight: 700; font-size: 13px;
+  }
+  .grade-A { background: #E8A050; color: #4a2800; }
+  .grade-B { background: #d4edda; color: #155724; }
+  .grade-C { background: #e2e3e5; color: #495057; }
+  .cal-btn {
+    display: inline-block; margin-left: 6px;
+    background: #4285F4; color: white !important;
+    border-radius: 6px; padding: 5px 10px; font-size: 11px;
+    text-decoration: none; white-space: nowrap;
+    min-height: 28px; line-height: 18px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  .cal-btn:hover { background: #3367D6; }
+
+  /* ── Form inputs ── */
+  .followup-input {
+    width: 100%; border: 1px solid #ddd; border-radius: 6px;
+    padding: 7px 9px; font-family: inherit;
+    font-size: 16px;              /* iOS zoom 방지: 반드시 16px 이상 */
+    line-height: 1.4;
+    background: #fafafa;
+    -webkit-appearance: none; appearance: none;
+    color: #333;
+  }
+  .followup-input:focus {
+    outline: none; border-color: #4285F4; background: #fff;
+    box-shadow: 0 0 0 3px rgba(66,133,244,0.12);
+  }
+
+  /* ── Info / note boxes ── */
+  .info-box {
+    background: #fff3cd; border: 1px solid #ffc107;
+    border-radius: 8px; padding: 14px 16px;
+    margin-bottom: 16px; line-height: 1.85; font-size: 13px;
+  }
+  .note {
+    background: #e8f4f8; border-left: 4px solid #3498db;
+    padding: 10px 14px; margin-bottom: 14px;
+    border-radius: 0 6px 6px 0; font-size: 12px; color: #2c3e50;
+  }
+
+  /* ── Section headings ── */
+  .section-title {
+    font-size: 15px; font-weight: 700; color: #1a1a2e;
+    margin-bottom: 14px; padding-bottom: 8px;
+    border-bottom: 2px solid #1a1a2e;
+  }
+  .section-sub {
+    font-size: 13px; font-weight: 700; color: #1a1a2e;
+    margin: 16px 0 10px; padding-left: 10px;
+    border-left: 3px solid #E8A050;
+  }
+
+  /* ── Booth map ── */
+  .map-wrap {
+    display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 6px;
+  }
+  .map-card {
+    background: #fff; border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 14px; flex: 1; min-width: 260px;
+  }
+  .map-card svg { width: 100%; height: auto; display: block; }
+  .map-label {
+    font-size: 14px; font-weight: 700; color: #1a1a2e; margin-bottom: 10px;
+  }
+  .map-count {
+    background: #E8A050; color: #4a2800;
+    border-radius: 10px; padding: 1px 8px;
+    font-size: 11px; font-weight: 600;
+  }
+
+  /* ── Editable cells ── */
+  .editable-cell {
+    min-width: 150px; padding: 7px 10px !important;
+    cursor: text; border-radius: 4px;
+    transition: background 0.15s; line-height: 1.5;
+    -webkit-user-select: text; user-select: text;
+  }
+  .editable-cell:hover { background: rgba(255,255,255,0.65) !important; }
+  .editable-cell:focus {
+    outline: 2px solid #4285F4;
+    background: #fff !important;
+    box-shadow: 0 0 0 3px rgba(66,133,244,0.15);
+  }
+  .editable-cell:empty::before {
+    content: attr(data-placeholder);
+    color: #bbb; pointer-events: none;
+  }
+
+  /* ── Tablet (768 ~ 1023px) ── */
+  @media (max-width: 1023px) {
+    .header { padding: 20px 24px; }
+    .header h1 { font-size: 18px; }
+    .stats { padding: 12px 20px; }
+    .tabs { padding: 0 16px; }
+    .tab-content { padding: 18px 20px; }
+    .stat-card { padding: 8px 14px; }
+    .stat-card .num { font-size: 20px; }
+  }
+
+  /* ── Mobile (≤ 767px) ── */
+  @media (max-width: 767px) {
+    .header {
+      padding: 16px;
+      padding-top: max(16px, env(safe-area-inset-top, 16px));
+      padding-left: max(16px, env(safe-area-inset-left, 0px));
+      padding-right: max(16px, env(safe-area-inset-right, 0px));
+    }
+    .header h1 { font-size: 16px; }
+    .stats {
+      padding: 10px 12px;
+      padding-left: max(12px, env(safe-area-inset-left, 0px));
+      padding-right: max(12px, env(safe-area-inset-right, 0px));
+      gap: 8px;
+    }
+    .stat-card { flex: 1 1 calc(50% - 4px); min-width: unset; padding: 8px 12px; }
+    .stat-card .num { font-size: 18px; }
+    .tabs {
+      padding-left: max(12px, env(safe-area-inset-left, 0px));
+    }
+    .tab-btn { padding: 12px 14px; font-size: 12px; }
+    .tab-content {
+      padding: 14px 12px;
+      padding-left: max(12px, env(safe-area-inset-left, 0px));
+      padding-right: max(12px, env(safe-area-inset-right, 0px));
+      padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
+    }
+    .data-table { font-size: 11px; }
+    .data-table th { padding: 9px 8px; font-size: 10px; }
+    .data-table td { padding: 7px 8px; }
+    .info-box { font-size: 12px; padding: 12px 14px; }
+    .map-card { min-width: 100%; }
+    .section-title { font-size: 14px; }
+    .section-sub { font-size: 12px; }
+  }
+
+  /* ── Print ── */
+  @media print {
+    .tabs, .tab-btn { display: none; }
+    .tab-content { display: block !important; page-break-before: always; }
+    .tab-content:first-of-type { page-break-before: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>전시회 사전 조사 보고서 — 2026년 04월</h1>
+  <div class="meta">생성: 2026년 04월 14일 22:42 &nbsp;|&nbsp; Exhibition Scout Agent</div>
+</div>
+
+<div class="stats">
+  <div class="stat-card"><div class="num">15</div><div class="label">수집 전시회</div></div>
+  <div class="stat-card"><div class="num">4</div><div class="label">권장 참관</div></div>
+  <div class="stat-card"><div class="num">4</div><div class="label">참관 확정</div></div>
+  <div class="stat-card"><div class="num">580</div><div class="label">SIMTOS 출품사</div></div>
+  <div class="stat-card" style="border-left-color:#E8A050"><div class="num">29</div><div class="label">A등급 업체</div></div>
+  <div class="stat-card" style="border-left-color:#27ae60"><div class="num">14</div><div class="label">B등급 업체</div></div>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('tab1', this)">전시회 목록</button>
+  <button class="tab-btn" onclick="showTab('tab2', this)">SIMTOS 참관 체크리스트</button>
+  <button class="tab-btn" onclick="showTab('tab3', this)">레이저 절단 심층분석</button>
+  <button class="tab-btn" onclick="showTab('tab4', this)">향후 전시회</button>
+</div>
+
+<div id="tab1" class="tab-content active">
+  <div class="section-title">전시회 목록 (총 15개)</div>
+  
+    <div class="table-scroll">
+    <table class="data-table">
+      <thead><tr>
+        <th>전시회명</th><th>시작일</th><th>종료일</th><th>장소</th>
+        <th>유형</th><th>점수</th><th>우선순위</th><th>상태</th><th>참관일</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:#FFB3B3">
+          <td style="font-weight:600;color:#c0392b">서울국제생산제조기술전(SIMTOS 2026)</td>
+          <td>2026-04-13</td>
+          <td>2026-04-17</td>
+          <td>KINTEX 전시홀 1~10</td>
+          <td><span class="tag">설비/장비&lt;/span&gt;&lt;span class='tag'&gt;소재/기술</span></td>
+          <td class="center"><span class="stars">★★★★★</span><br><small>5/5</small></td>
+          <td style="color:#c0392b;font-weight:600">필수 참관</td>
+          <td><span class="badge badge-confirmed">확정</span></td>
+          <td class="small-text">2026-04-15, 2026-04-16, 2026-04-17</td>
+        </tr>
+        <tr style="background:#FFDCB3">
+          <td style="font-weight:600;color:#e67e22">제70회 MBC건축박람회 외(통합명칭)<a href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=%5B%EC%A0%84%EC%8B%9C%ED%9A%8C%5D%20%EC%A0%9C70%ED%9A%8C%20MBC%EA%B1%B4%EC%B6%95%EB%B0%95%EB%9E%8C%ED%9A%8C%20%EC%99%B8%28%ED%86%B5%ED%95%A9%EB%AA%85%EC%B9%AD%29&amp;dates=20260507/20260510&amp;location=KINTEX%20%EC%A0%84%EC%8B%9C%ED%99%80%203A%2C%204%2C%205" target="_blank" class="cal-btn">📅 캘린더</a></td>
+          <td>2026-05-07</td>
+          <td>2026-05-10</td>
+          <td>KINTEX 전시홀 3A, 4, 5</td>
+          <td><span class="tag">산업분야</span></td>
+          <td class="center"><span class="stars">★★★★☆</span><br><small>4/5</small></td>
+          <td style="color:#e67e22;font-weight:600">강력 권장</td>
+          <td><span class="badge badge-confirmed">확정</span></td>
+          <td class="small-text"></td>
+        </tr>
+        <tr style="background:#FFF9B3">
+          <td style="font-weight:600;color:#f39c12">월드IT쇼<a href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=%5B%EC%A0%84%EC%8B%9C%ED%9A%8C%5D%20%EC%9B%94%EB%93%9CIT%EC%87%BC&amp;dates=20260422/20260424&amp;location=COEX%20Hall%20A%2C%20Hall%20B1%2C%20C" target="_blank" class="cal-btn">📅 캘린더</a></td>
+          <td>2026-04-22</td>
+          <td>2026-04-24</td>
+          <td>COEX Hall A, Hall B1, C</td>
+          <td><span class="tag">소재/기술&lt;/span&gt;&lt;span class='tag'&gt;설비/장비</span></td>
+          <td class="center"><span class="stars">★★★☆☆</span><br><small>3/5</small></td>
+          <td style="color:#f39c12;font-weight:600">권장 참관</td>
+          <td><span class="badge badge-confirmed">확정</span></td>
+          <td class="small-text"></td>
+        </tr>
+        <tr style="background:#FFF9B3">
+          <td style="font-weight:600;color:#f39c12">2026 서울 일러스트코리아<a href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=%5B%EC%A0%84%EC%8B%9C%ED%9A%8C%5D%202026%20%EC%84%9C%EC%9A%B8%20%EC%9D%BC%EB%9F%AC%EC%8A%A4%ED%8A%B8%EC%BD%94%EB%A6%AC%EC%95%84&amp;dates=20260423/20260426&amp;location=COEX%20Hall%20B2" target="_blank" class="cal-btn">📅 캘린더</a></td>
+          <td>2026-04-23</td>
+          <td>2026-04-26</td>
+          <td>COEX Hall B2</td>
+          <td><span class="tag">산업분야</span></td>
+          <td class="center"><span class="stars">★★★☆☆</span><br><small>3/5</small></td>
+          <td style="color:#f39c12;font-weight:600">권장 참관</td>
+          <td><span class="badge badge-confirmed">확정</span></td>
+          <td class="small-text"></td>
+        </tr>
+        <tr style="background:#E8FFE8">
+          <td style="font-weight:600;color:#27ae60">2026 한국국제베이커리페어</td>
+          <td>2026-04-16</td>
+          <td>2026-04-19</td>
+          <td>COEX Hall D</td>
+          <td><span class="tag">산업분야</span></td>
+          <td class="center"><span class="stars">★★☆☆☆</span><br><small>2/5</small></td>
+          <td style="color:#27ae60;font-weight:600">참고 수준</td>
+          <td><span class="badge badge-skipped">스킵</span></td>
+          <td class="small-text"></td>
+        </tr>
+        <tr style="background:#E8FFE8">
+          <td style="font-weight:600;color:#27ae60">회원 보수교육 학술세미나 &amp; K-MEX 2026(한의약 및 통합의약 국제산업박람회)</td>
+          <td>2026-04-25</td>
+          <td>2026-04-26</td>
+          <td>COEX Hall D</td>
+          <td><span class="tag">산업분야</span></td>
+          <td class="center"><span class="stars">★★☆☆☆</span><br><small>2/5</small></td>
+          <td style="color:#27ae60;font-weight:600">참고 수준</td>
+          <td><span class="badge badge-skipped">스킵</span></td>
+          <td class="small-text"></td>
+        </tr>
+        <tr style="background:#F0F0F0">
+          <td style="font-weight:600;color:#7f8c8d">2026 서울커피엑스포</td>
+          <td>2026-04-15</td>
+          <td>2026-04-18</td>
+          <td>COEX Hall A, B</td>
+          <td><span class="tag">산업분야</span></td>
+          <td class="center"><span class="stars">★☆☆☆☆</span><br><small>1/5</small></td>
+          <td style="color:#7f8c8d;font-weight:600">관련 낮음</td>
+          <td><span class="badge badge-skipped">스킵</span></td>
+          <td class="small-text"></td>
+        </tr>
+        <tr style="background:#F0F0F0">
+          <td style="font-weight:600;color:#7f8c8d">새로운 시대의 첫발: 한국식품연구원 헬스케어 데이터 기술협의체 ✕ 국가과학기술연구회 2026</td>
+          <td>2026-04-16</td>
+          <td>2026-04-16</td>
+          <td>COEX 컨퍼런스룸(남) 3F</td>
+          <td><span class="tag">소재/기술</span></td>
+          <td class="center"><span class="stars">★☆☆☆☆</span><br><small>1/5</small></td>
+          <td style="color:#7f8c8d;font-weight:600">관련 낮음</td>
+          <td><span class="badge badge-skipped">스킵</span></td>
+          <td class="small-text"></td>
+        </tr>
+        <tr style="background:#F0F0F0">
+          <td style="font-weight:600;color:#7f8c8d">대한민국맥주박람회 &amp; 드링크서울</td>
+          <td>2026-04-16</td>
+          <td>2026-04-18</td>
+          <td>COEX Hall C</td>
+          <td><span class="tag">산업분야</span></td>
+          <td class="center"><span class="stars">★☆☆☆☆</span><br><small>1/5</small></td>
+          <td style="color:#7f8c8d;font-weight:600">관련 낮음</td>
+          <td><span class="badge badge-skipped">스킵</span></td>
+          <td class="small-text"></td>
+        </tr>
+        <tr style="background:#F0F0F0">
+          <td style="font-weight:600;color:#7f8c8d">제414회 웨덱스 웨딩박람회</td>
+          <td>2026-04-18</td>
+          <td>2026-04-19</td>
+          <td>COEX 코엑스 3층 327호</td>
+          <td><span class="tag">산업분야</span></td>
+          <td class="center"><span class="stars">★☆☆☆☆</span><br><small>1/5</small></td>
+          <td style="color:#7f8c8d;font-weight:600">관련 낮음</td>
+          <td><span class="badge badge-skipped">스킵</span></td>
+          <td class="small-text"></td>
+        </tr>
+        <tr style="background:#F0F0F0">
+          <td style="font-weight:600;color:#7f8c8d">2026 우수급식외식산업전</td>
+          <td>2026-04-21</td>
+          <td>2026-04-23</td>
+          <td>COEX Hall D</td>
+          <td><span class="tag">산업분야</span></td>
+          <td class="center"><span class="stars">★☆☆☆☆</span><br><small>1/5</small></td>
+          <td style="color:#7f8c8d;font-weight:600">관련 낮음</td>
+          <td><span class="badge badge-skipped">스킵</span></td>
+          <td class="small-text"></td>
+        </tr>
+        <tr style="background:#F0F0F0">
+          <td style="font-weight:600;color:#7f8c8d">대한민국 인적자원개발 종합대회</td>
+          <td>2026-04-22</td>
+          <td>2026-04-23</td>
+          <td>COEX 코엑스 컨퍼런스룸 E홀 3층</td>
+          <td><span class="tag">산업분야</span></td>
+          <td class="center"><span class="stars">★☆☆☆☆</span><br><small>1/5</small></td>
+          <td style="color:#7f8c8d;font-weight:600">관련 낮음</td>
+          <td><span class="badge badge-skipped">스킵</span></td>
+          <td class="small-text"></td>
+        </tr>
+        <tr style="background:#F0F0F0">
+          <td style="font-weight:600;color:#7f8c8d">2026 대한민국 과학축제 in 경기 (with 대한민국 과학기술대전)</td>
+          <td>2026-04-24</td>
+          <td>2026-04-26</td>
+          <td>KINTEX 전시홀 4</td>
+          <td><span class="tag">소재/기술</span></td>
+          <td class="center"><span class="stars">★☆☆☆☆</span><br><small>1/5</small></td>
+          <td style="color:#7f8c8d;font-weight:600">관련 낮음</td>
+          <td><span class="badge badge-skipped">스킵</span></td>
+          <td class="small-text"></td>
+        </tr>
+        <tr style="background:#F0F0F0">
+          <td style="font-weight:600;color:#7f8c8d">2026 냥냥펀치 캣쇼 일산</td>
+          <td>2026-04-24</td>
+          <td>2026-04-26</td>
+          <td>KINTEX 전시홀 7B</td>
+          <td><span class="tag">산업분야</span></td>
+          <td class="center"><span class="stars">★☆☆☆☆</span><br><small>1/5</small></td>
+          <td style="color:#7f8c8d;font-weight:600">관련 낮음</td>
+          <td><span class="badge badge-skipped">스킵</span></td>
+          <td class="small-text"></td>
+        </tr>
+        <tr style="background:#F0F0F0">
+          <td style="font-weight:600;color:#7f8c8d">2026 유학박람회</td>
+          <td>2026-04-25</td>
+          <td>2026-04-25</td>
+          <td>COEX 컨퍼런스룸(남) 3층 307/308호</td>
+          <td><span class="tag">산업분야</span></td>
+          <td class="center"><span class="stars">★☆☆☆☆</span><br><small>1/5</small></td>
+          <td style="color:#7f8c8d;font-weight:600">관련 낮음</td>
+          <td><span class="badge badge-skipped">스킵</span></td>
+          <td class="small-text"></td>
+        </tr></tbody>
+    </table>
+    </div>
+</div>
+
+<div id="tab2" class="tab-content">
+  <div class="section-title">SIMTOS 2026 참관 체크리스트 — Cu 동판 2.0mm 절단 목적</div>
+  
+    <p class="note">A등급: 구리동판 2.0mm 절단 직접 관련 · B등급: 보조 장비/기술 · C등급: 참고 수준</p>
+    <div class="table-scroll">
+    <table class="data-table">
+      <thead><tr>
+        <th>등급</th><th>업체명</th><th>부스</th><th>제품/기술</th>
+        <th>관심 포인트</th><th>확인 질문</th><th>명함</th><th>카탈로그</th><th>후속조치</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">(주)에이치케이</td>
+          <td class="center mono"></td>
+          <td class="small-text">레이저공작기계</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">한국트럼프(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">2D파이버레이저절단기</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">JINAN BODOR CNC MACHINE Co., Ltd.</td>
+          <td class="center mono"></td>
+          <td class="small-text">laser cutting machine</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">(주)아마다코리아</td>
+          <td class="center mono"></td>
+          <td class="small-text">파이버 레이저 가공기</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">HSG LASER Co., Ltd.</td>
+          <td class="center mono"></td>
+          <td class="small-text">Laser cutting machine;Welding machine</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">Jinan Xintian Technology Co., Ltd.</td>
+          <td class="center mono"></td>
+          <td class="small-text">laser cutting machine</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">(주)한스송우코리아</td>
+          <td class="center mono"></td>
+          <td class="small-text">파이버 레이저 커팅기</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">한스레이저 / (주)원공사 / (주)에스이컴퍼니</td>
+          <td class="center mono"></td>
+          <td class="small-text">한스레이저</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">대성기술텍(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">파이버 레이저 절단기</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">Shandong Aore Laser Equipment Co., Ltd.</td>
+          <td class="center mono"></td>
+          <td class="small-text">laser cutting machines</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">(주)위너시스템</td>
+          <td class="center mono"></td>
+          <td class="small-text">레이저V컷팅복합기</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">디엔이레이저코리아</td>
+          <td class="center mono"></td>
+          <td class="small-text">D-Soar Plus</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">(주)대영산업기계</td>
+          <td class="center mono"></td>
+          <td class="small-text">파이버 레이저 절단기</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">Penta Laser (Zhejiang) Co., ltd</td>
+          <td class="center mono"></td>
+          <td class="small-text">Laser cutting machine</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">HGTECH</td>
+          <td class="center mono"></td>
+          <td class="small-text">Laser cutting machine</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">GWEIKE TECH Co., Ltd.</td>
+          <td class="center mono"></td>
+          <td class="small-text">Fiber laser cutter &amp; laser welding machine</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">Longdiao Intelligent Equipment(Shandong) Co., Ltd.</td>
+          <td class="center mono"></td>
+          <td class="small-text">Laser Cutting Machine</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">(주)티테크</td>
+          <td class="center mono"></td>
+          <td class="small-text">레이저 컷팅기</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">메탈박스</td>
+          <td class="center mono"></td>
+          <td class="small-text">레이저 절단기</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">(주)토르텍</td>
+          <td class="center mono"></td>
+          <td class="small-text">레이저 절단 시스템</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">DAHANG LASER, TEKNICUT</td>
+          <td class="center mono"></td>
+          <td class="small-text">Fiber Laser Cutting Machine</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">에이텍코퍼레이션(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">글로리스타 파이버 레이저 커팅머신</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">(주)코포텍</td>
+          <td class="center mono"></td>
+          <td class="small-text">레이저커팅기</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">Wuhan EETO Laser Equipment Co., Ltd.</td>
+          <td class="center mono"></td>
+          <td class="small-text">Fiber Laser Cutting Machine</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">형제레이저(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">3차원 레이저 절단</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">Zhongpin Intelligent Machinery Co., Ltd.</td>
+          <td class="center mono"></td>
+          <td class="small-text">Laser cutting machine</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">JINAN GOLD MARK CNC MACHINERY Co., Ltd.</td>
+          <td class="center mono"></td>
+          <td class="small-text">Laser cutting machine</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">Liaocheng Foster Laser Science &amp; Technology Co., Ltd.</td>
+          <td class="center mono"></td>
+          <td class="small-text">Laser welding machine</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">Jinan Zhongke CNC Equipment Co., Ltd.</td>
+          <td class="center mono"></td>
+          <td class="small-text">fiber cutting machine</td>
+          <td class="small-text">Cu 동판 2.0mm 재단</td>
+          <td class="small-text">연마 없이 깔끔하게 절단 되는지? | 완벽한 셋팅 서비스를 제공하는지? | 결과물 낙하 시 흠집 방지 방법이 있는지?</td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#E8F4E8">
+          <td class="center"><span class="grade-badge grade-B">B</span></td>
+          <td style="font-weight:600">DN솔루션즈</td>
+          <td class="center mono"></td>
+          <td class="small-text">공작기계</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#E8F4E8">
+          <td class="center"><span class="grade-badge grade-B">B</span></td>
+          <td style="font-weight:600">화천기계(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">공작기계</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#E8F4E8">
+          <td class="center"><span class="grade-badge grade-B">B</span></td>
+          <td style="font-weight:600">(주)디와이엠테크</td>
+          <td class="center mono"></td>
+          <td class="small-text">CNC 자동선반</td>
+          <td class="small-text">레이저 마킹/조각 — 동판 음각 가공 보조 장비</td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#E8F4E8">
+          <td class="center"><span class="grade-badge grade-B">B</span></td>
+          <td style="font-weight:600">(주)소딕코리아</td>
+          <td class="center mono"></td>
+          <td class="small-text">와이어방전가공기</td>
+          <td class="small-text">와이어방전가공 — 에칭 대체 기술 비교 검토</td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#E8F4E8">
+          <td class="center"><span class="grade-badge grade-B">B</span></td>
+          <td style="font-weight:600">한국미쓰비시전기오토메이션(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">CNC M8V 시리즈</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#E8F4E8">
+          <td class="center"><span class="grade-badge grade-B">B</span></td>
+          <td style="font-weight:600">씨에스캠(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">5축 CNC 머시닝 센터</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#E8F4E8">
+          <td class="center"><span class="grade-badge grade-B">B</span></td>
+          <td style="font-weight:600">블룸노보테스트(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">레이저 공구 측정기, Z프로브, 터치 프로브</td>
+          <td class="small-text">레이저 마킹/조각 — 동판 음각 가공 보조 장비</td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#E8F4E8">
+          <td class="center"><span class="grade-badge grade-B">B</span></td>
+          <td style="font-weight:600">(주)볼머코리아</td>
+          <td class="center mono"></td>
+          <td class="small-text">공구 가공 레이저장비</td>
+          <td class="small-text">레이저 마킹/조각 — 동판 음각 가공 보조 장비</td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#E8F4E8">
+          <td class="center"><span class="grade-badge grade-B">B</span></td>
+          <td style="font-weight:600">제일엠텍(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">화이버레이저 마킹기</td>
+          <td class="small-text">레이저 마킹/조각 — 동판 음각 가공 보조 장비</td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#E8F4E8">
+          <td class="center"><span class="grade-badge grade-B">B</span></td>
+          <td style="font-weight:600">올리콘발저스코팅코리아(유)</td>
+          <td class="center mono"></td>
+          <td class="small-text">코팅된 공구, 부품, 금형 등</td>
+          <td class="small-text">PVD 코팅 — 동판 수명 연장 가능성</td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#E8F4E8">
+          <td class="center"><span class="grade-badge grade-B">B</span></td>
+          <td style="font-weight:600">(주)디피컴머설</td>
+          <td class="center mono"></td>
+          <td class="small-text">5축 레이저 공구 제조기</td>
+          <td class="small-text">레이저 마킹/조각 — 동판 음각 가공 보조 장비</td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#E8F4E8">
+          <td class="center"><span class="grade-badge grade-B">B</span></td>
+          <td style="font-weight:600">(주)오맥스워터젯</td>
+          <td class="center mono"></td>
+          <td class="small-text">워터젯절단기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#E8F4E8">
+          <td class="center"><span class="grade-badge grade-B">B</span></td>
+          <td style="font-weight:600">한국동지무역(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">금형 및 제품 보수용 레이저 용접기 및 방전피막 코팅?육성장치</td>
+          <td class="small-text">레이저 용접 + 방전피막 코팅 — 동판 복구 및 수명 연장</td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#E8F4E8">
+          <td class="center"><span class="grade-badge grade-B">B</span></td>
+          <td style="font-weight:600">레이툴스</td>
+          <td class="center mono"></td>
+          <td class="small-text">레이저 가공 헤드</td>
+          <td class="small-text">레이저 마킹/조각 — 동판 음각 가공 보조 장비</td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">위아공작기계(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">공작기계</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">(주)스맥</td>
+          <td class="center mono"></td>
+          <td class="small-text">머시닝센터</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">한국화낙(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">머시닝센터</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">한국야마자키마작(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">Turning Center &amp; Machining Center</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">케이씨엔씨(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">시뮬레이터, KCNC 제품군 등</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">한화세미텍(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">공작기계(자동선반)</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">(주)대성하이텍</td>
+          <td class="center mono"></td>
+          <td class="small-text">공작기계</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">(주)스마트공작기계코리아</td>
+          <td class="center mono"></td>
+          <td class="small-text">CNC선반, 로봇, MCT등</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">한국미쓰도요</td>
+          <td class="center mono"></td>
+          <td class="small-text">정밀 측정 기기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">주식회사 코시스</td>
+          <td class="center mono"></td>
+          <td class="small-text">플라즈마 절단기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">디엠씨(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">수직머시닝센터</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">에스에이치에이펙스</td>
+          <td class="center mono"></td>
+          <td class="small-text">공작기계 수직형 머시닝센터</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">인터엑스</td>
+          <td class="center mono"></td>
+          <td class="small-text">공작기계 AX 솔루션</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">오쿠마코리아(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">공작기계</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">마키노코리아 (주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">머시닝센터</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">기흥기계</td>
+          <td class="center mono"></td>
+          <td class="small-text">머시닝센터외</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">TSUGAMI CORPORATION</td>
+          <td class="center mono"></td>
+          <td class="small-text">CNC Automatic lathe</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">(주)스타코리아</td>
+          <td class="center mono"></td>
+          <td class="small-text">씨앤씨자동선반</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">유나이티드 머시닝 솔루션즈</td>
+          <td class="center mono"></td>
+          <td class="small-text">미정</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">두루무역(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">초정밀고속가공기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">한국정밀기계(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">CNC수평보링기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">(주)코마텍</td>
+          <td class="center mono"></td>
+          <td class="small-text">머시닝센터</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">(주)넥스턴앤롤코리아</td>
+          <td class="center mono"></td>
+          <td class="small-text">CNC자동선반</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">(주)동양마그닉스</td>
+          <td class="center mono"></td>
+          <td class="small-text">컴팩트 머시닝 센터</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">헥사곤 매뉴팩처링 인텔리전스</td>
+          <td class="center mono"></td>
+          <td class="small-text">3차원 측정기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">국도머신(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">하이브리드CNC절곡기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">KAO FONG MACHINERY Co., Ltd.</td>
+          <td class="center mono"></td>
+          <td class="small-text">Vertical Machining Center, Double Column Machining</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">아위아 / 로토클리어 / 짐머만 / 캐슬러</td>
+          <td class="center mono"></td>
+          <td class="small-text">머시닝센터</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">칼자이스(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">3차원 측정기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">마르포스(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">측정기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">레니쇼코리아(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">공작기계프로브</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">태창금속산업(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">스위스형 자동선반</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">리우테크</td>
+          <td class="center mono"></td>
+          <td class="small-text">머시닝센터</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">(주)송마</td>
+          <td class="center mono"></td>
+          <td class="small-text">기어가공기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">(주)야마젠코리아</td>
+          <td class="center mono"></td>
+          <td class="small-text">로꾸로꾸 머시닝센터</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">(주)덕인</td>
+          <td class="center mono"></td>
+          <td class="small-text">삼차원측정기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">신우NC테크</td>
+          <td class="center mono"></td>
+          <td class="small-text">CNC라우터</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">(주)삼성공작기계</td>
+          <td class="center mono"></td>
+          <td class="small-text">칩크리너 외</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">(주)아크레텍코리아</td>
+          <td class="center mono"></td>
+          <td class="small-text">삼차원 측정기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">파로 크레아폼</td>
+          <td class="center mono"></td>
+          <td class="small-text">3D 스캐닝 측정 솔루션</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">한국리커만주식회사</td>
+          <td class="center mono"></td>
+          <td class="small-text">공작기계</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">키엔스코리아(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">이미지 치수 측정 시스템 IM-8000 시리즈</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">코론(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">초정밀 고속가공기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">BIG DAISHOWA SEIKI Co., Ltd.</td>
+          <td class="center mono"></td>
+          <td class="small-text">Tool holders,cutting tools,sensor,measuring tools</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">(주)한국기타가와</td>
+          <td class="center mono"></td>
+          <td class="small-text">공작기계관련부품</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">(주)아이메저</td>
+          <td class="center mono"></td>
+          <td class="small-text">정밀측정기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">델타기계(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">4면밀링가공기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">한국파고르오토메이션(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">CNC, 엔코더 등</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">오엠에이곰(유)</td>
+          <td class="center mono"></td>
+          <td class="small-text">3차원 측정기 (스캐닝)</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">나우엠티엔지니어링(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">5축 머시닝 센터</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">창한정밀기계공업(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">초정밀CNC평면연삭기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">맥스포토닉스</td>
+          <td class="center mono"></td>
+          <td class="small-text">공냉식 레이저 용접기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">SPM</td>
+          <td class="center mono"></td>
+          <td class="small-text">와이어컷 방전 가공기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">DKSH Korea</td>
+          <td class="center mono"></td>
+          <td class="small-text">기어 측정기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">ANCA CNC MACHINES</td>
+          <td class="center mono"></td>
+          <td class="small-text">연삭기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">(주)진성유로텍</td>
+          <td class="center mono"></td>
+          <td class="small-text">자동선반복합기 및 절삭공구</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">(주)한성정공</td>
+          <td class="center mono"></td>
+          <td class="small-text">공작기계용 쿨런트펌프 및 윤활펌프</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">(주)엠티에스코리아</td>
+          <td class="center mono"></td>
+          <td class="small-text">산업용 안전펜스, 공작기계</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">(주)상림엠에스피</td>
+          <td class="center mono"></td>
+          <td class="small-text">대형공작기계</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">트룰리(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">CNC공구</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">에스더블유머신스코리아(유)</td>
+          <td class="center mono"></td>
+          <td class="small-text">수평 4-spindle 보링/밀링 머시닝 센터</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">영원테크</td>
+          <td class="center mono"></td>
+          <td class="small-text">비접촉 측정기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">에스엠지티지에스</td>
+          <td class="center mono"></td>
+          <td class="small-text">기어 측정 장비</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">오토메이티드프리씨젼(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">3차원 레이저 측정기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">엑스오테크놀러지(주) / Shandong Nano Advanced Materials</td>
+          <td class="center mono"></td>
+          <td class="small-text">미네랄케스팅, 정밀 석정반, 친환경 오일, 절삭유, 방전유, 연마유, 열박음 척</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">베리컷</td>
+          <td class="center mono"></td>
+          <td class="small-text">베리컷 CNC 시뮬레이션 및 최적화 소프트웨어</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">대붕실업</td>
+          <td class="center mono"></td>
+          <td class="small-text">5축 CNC 공구연마기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">SHANDONG SHANSEN CNC TECHNOLOGY Co., Ltd.</td>
+          <td class="center mono"></td>
+          <td class="small-text">Machine Operation Panel; Intellgent Switchboard</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">OKE PRECISION CUTTING TOOLS Co., Ltd.</td>
+          <td class="center mono"></td>
+          <td class="small-text">Solid Carbide Endmills;Solid Carbide Drills;</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">Wuhan Hanli Refrigeration Technology Co., Ltd.</td>
+          <td class="center mono"></td>
+          <td class="small-text">Laser cooling chillers，welding series chillers</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">VICIVISION KOREA</td>
+          <td class="center mono"></td>
+          <td class="small-text">비접촉광학측정기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">(주)페이버</td>
+          <td class="center mono"></td>
+          <td class="small-text">나노 머신 고속가공기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">(주)티지텍코리아</td>
+          <td class="center mono"></td>
+          <td class="small-text">비접촉3차원측정기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">다이니치금속공업</td>
+          <td class="center mono"></td>
+          <td class="small-text">다이니치 선반</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">파야프레스</td>
+          <td class="center mono"></td>
+          <td class="small-text">부스바가공기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">Foshan Qidu Intelligent Technology Co., Ltd.</td>
+          <td class="center mono"></td>
+          <td class="small-text">Infrared optical probe</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">CONPROFE TECHNOLOGY GROUP Co., Ltd.</td>
+          <td class="center mono"></td>
+          <td class="small-text">Ultrasonic Machining Center</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">(주)한국NSD</td>
+          <td class="center mono"></td>
+          <td class="small-text">CNC 성형연삭기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">(주)KAMI</td>
+          <td class="center mono"></td>
+          <td class="small-text">정밀고속가공기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">(주)비젼텍</td>
+          <td class="center mono"></td>
+          <td class="small-text">초정밀 비접촉 3차원 측정기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">(주)스톰</td>
+          <td class="center mono"></td>
+          <td class="small-text">레이저 어플리케이션 장비</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">(주)아스트라코팅</td>
+          <td class="center mono"></td>
+          <td class="small-text">PVD 코팅</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">연정공구</td>
+          <td class="center mono"></td>
+          <td class="small-text">cnc유니버셜 연삭기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">더싸인</td>
+          <td class="center mono"></td>
+          <td class="small-text">비접촉 광학식 3차원 측정기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">모모아이 레이저</td>
+          <td class="center mono"></td>
+          <td class="small-text">레이저 자동화 플라잉 마킹 머신</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">에스아이씨마킹코리아</td>
+          <td class="center mono"></td>
+          <td class="small-text">마킹솔루션</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">우성테크</td>
+          <td class="center mono"></td>
+          <td class="small-text">유압 방진구 (CNC 선반용)</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">메저엠</td>
+          <td class="center mono"></td>
+          <td class="small-text">2차원 &amp; 3차원 측정기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">메싸커팅시스템코리아(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">가스절단 및 히팅 소모품들</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">주식회사 레이저텍</td>
+          <td class="center mono"></td>
+          <td class="small-text">절곡기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">옥스레이저</td>
+          <td class="center mono"></td>
+          <td class="small-text">레이저용접기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">제이민스(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">MCT, CNC, 사출, 센딩, 방열소재</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">대한광통신(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">FIBER LASER</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">주식회사 오로라포토닉스</td>
+          <td class="center mono"></td>
+          <td class="small-text">파이버레이저 유닛 및 관련서비스</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">멀티 레이저</td>
+          <td class="center mono"></td>
+          <td class="small-text">멀티레이저 M3 ULTRA</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">라이트테크(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">레이저 용접기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">에프앤비솔루션</td>
+          <td class="center mono"></td>
+          <td class="small-text">공작기계 주변기기(서포트암)</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">월드종합기계통상</td>
+          <td class="center mono"></td>
+          <td class="small-text">선반</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">테일러홉슨</td>
+          <td class="center mono"></td>
+          <td class="small-text">표면거칠기 측정기, 진원도 측정기, 렌즈 형상 측정기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">엘림하이텍</td>
+          <td class="center mono"></td>
+          <td class="small-text">맥스공냉식레이저용접기</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">다주하이테크</td>
+          <td class="center mono"></td>
+          <td class="small-text">소형선반 외</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">하주테크</td>
+          <td class="center mono"></td>
+          <td class="small-text">자동CNC공구연마기계</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">피케이엔지니어링(주)</td>
+          <td class="center mono"></td>
+          <td class="small-text">TTi 기어측정기,SCHNYDER 기어 가공 툴</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">WEIHAI HUADONG AUTOMATION Co., Ltd.</td>
+          <td class="center mono"></td>
+          <td class="small-text">Surface grinding machine</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">Wuhan Remcor Technology Co., Ltd.</td>
+          <td class="center mono"></td>
+          <td class="small-text">cnc swiss type lathe</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">CemeCon K.K.</td>
+          <td class="center mono"></td>
+          <td class="small-text">CC800® Diamond, CC800® HiPIMS coating tools</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">ZHUZHOU SANT CUTTING TOOLS Co., Ltd.</td>
+          <td class="center mono"></td>
+          <td class="small-text">Turning tools</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">QINCHUAN MACHINE TOOL &amp; TOOL GROUP CORP.</td>
+          <td class="center mono"></td>
+          <td class="small-text">METAL CUTTING TOOLS</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr>
+        <tr style="background:#FAFAFA">
+          <td class="center"><span class="grade-badge grade-C">C</span></td>
+          <td style="font-weight:600">Hartmetall-Werkzeugfabrik Paul Horn GmbH</td>
+          <td class="center mono"></td>
+          <td class="small-text">Cutting Tools</td>
+          <td class="small-text"></td>
+          <td class="small-text"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="center"><input type="checkbox"></td>
+          <td><input type="text" class="followup-input" placeholder="메모..."></td>
+        </tr></tbody>
+    </table>
+    </div>
+</div>
+
+<div id="tab3" class="tab-content">
+  <div class="section-title">레이저 절단 심층 분석 — 14개사</div>
+  
+    <div class="info-box">
+      <strong>핵심 질문 3가지 (모든 업체 공통)</strong><br>
+      1. 연마 없이 깔끔하게 절단 되는지?<br>
+      2. 완벽한 셋팅 서비스를 제공하는지?<br>
+      3. 결과물이 떨어지면서 흠집이 나는 것을 방지할 수 있는지?
+    </div>
+    <div class="section-sub">부스 위치 맵</div>
+    
+    <div class="map-wrap">
+      <div class="map-card">
+        <div class="map-label">Hall 9 &nbsp;<span class="map-count">9개사</span></div>
+        <svg viewBox="0 0 520 318" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif"><rect width="520" height="318" rx="8" fill="#f8f9fa" stroke="#ccc" stroke-width="1"/><text x="260" y="22" text-anchor="middle" font-size="14" font-weight="bold" fill="#1a1a2e">Hall 9</text><rect x="60" y="32" width="160" height="20" rx="3" fill="#1a1a2e"/><text x="140" y="46" text-anchor="middle" font-size="11" fill="white" font-weight="bold">F 구역</text><rect x="300" y="32" width="160" height="20" rx="3" fill="#1a1a2e"/><text x="380" y="46" text-anchor="middle" font-size="11" fill="white" font-weight="bold">G 구역</text><text x="260" y="312" text-anchor="middle" font-size="10" fill="#888">▲ 입구</text><rect x="60" y="58" width="160" height="38" rx="4" fill="#E8A050" stroke="#c07020" stroke-width="1.5"/><text text-anchor="middle" font-size="10" font-family="Malgun Gothic,sans-serif" fill="#4a2800" font-weight="600"><tspan x="140" y="72">(주)</tspan><tspan x="140" dy="13">코포텍</tspan></text><rect x="60" y="104" width="160" height="38" rx="4" fill="#E8A050" stroke="#c07020" stroke-width="1.5"/><text text-anchor="middle" font-size="10" font-family="Malgun Gothic,sans-serif" fill="#4a2800" font-weight="600"><tspan x="140" y="118">JINAN</tspan><tspan x="140" dy="13">BODOR</tspan></text><rect x="60" y="150" width="160" height="38" rx="4" fill="#E8A050" stroke="#c07020" stroke-width="1.5"/><text text-anchor="middle" font-size="10" font-family="Malgun Gothic,sans-serif" fill="#4a2800" font-weight="600"><tspan x="140" y="164">HSG</tspan><tspan x="140" dy="13">LASER</tspan></text><rect x="60" y="196" width="160" height="38" rx="4" fill="#E8A050" stroke="#c07020" stroke-width="1.5"/><text x="140" y="219" text-anchor="middle" font-size="10" font-family="Malgun Gothic,sans-serif" fill="#4a2800" font-weight="600">한스레이저</text><rect x="60" y="242" width="160" height="38" rx="4" fill="#E8A050" stroke="#c07020" stroke-width="1.5"/><text x="140" y="265" text-anchor="middle" font-size="10" font-family="Malgun Gothic,sans-serif" fill="#4a2800" font-weight="600">형제레이저</text><rect x="300" y="58" width="160" height="38" rx="4" fill="#E8A050" stroke="#c07020" stroke-width="1.5"/><text text-anchor="middle" font-size="10" font-family="Malgun Gothic,sans-serif" fill="#4a2800" font-weight="600"><tspan x="380" y="72">(주)</tspan><tspan x="380" dy="13">아마다코리아</tspan></text><rect x="300" y="104" width="160" height="38" rx="4" fill="#E8A050" stroke="#c07020" stroke-width="1.5"/><text text-anchor="middle" font-size="10" font-family="Malgun Gothic,sans-serif" fill="#4a2800" font-weight="600"><tspan x="380" y="118">에이텍코</tspan><tspan x="380" dy="13">퍼레이션</tspan></text><rect x="300" y="150" width="160" height="38" rx="4" fill="#E8A050" stroke="#c07020" stroke-width="1.5"/><text text-anchor="middle" font-size="10" font-family="Malgun Gothic,sans-serif" fill="#4a2800" font-weight="600"><tspan x="380" y="164">(주)</tspan><tspan x="380" dy="13">토르텍</tspan></text><rect x="300" y="196" width="160" height="38" rx="4" fill="#E8A050" stroke="#c07020" stroke-width="1.5"/><text x="380" y="219" text-anchor="middle" font-size="10" font-family="Malgun Gothic,sans-serif" fill="#4a2800" font-weight="600">대성기술텍</text></svg>
+      </div>
+      <div class="map-card">
+        <div class="map-label">Hall 10 &nbsp;<span class="map-count">5개사</span></div>
+        <svg viewBox="0 0 520 226" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif"><rect width="520" height="226" rx="8" fill="#f8f9fa" stroke="#ccc" stroke-width="1"/><text x="260" y="22" text-anchor="middle" font-size="14" font-weight="bold" fill="#1a1a2e">Hall 10</text><rect x="60" y="32" width="160" height="20" rx="3" fill="#1a1a2e"/><text x="140" y="46" text-anchor="middle" font-size="11" fill="white" font-weight="bold">F 구역</text><rect x="300" y="32" width="160" height="20" rx="3" fill="#1a1a2e"/><text x="380" y="46" text-anchor="middle" font-size="11" fill="white" font-weight="bold">G 구역</text><text x="260" y="220" text-anchor="middle" font-size="10" fill="#888">▲ 입구</text><rect x="60" y="58" width="160" height="38" rx="4" fill="#E8A050" stroke="#c07020" stroke-width="1.5"/><text x="140" y="81" text-anchor="middle" font-size="10" font-family="Malgun Gothic,sans-serif" fill="#4a2800" font-weight="600">메탈박스</text><rect x="60" y="104" width="160" height="38" rx="4" fill="#E8A050" stroke="#c07020" stroke-width="1.5"/><text x="140" y="127" text-anchor="middle" font-size="10" font-family="Malgun Gothic,sans-serif" fill="#4a2800" font-weight="600">한국트럼프</text><rect x="60" y="150" width="160" height="38" rx="4" fill="#E8A050" stroke="#c07020" stroke-width="1.5"/><text text-anchor="middle" font-size="10" font-family="Malgun Gothic,sans-serif" fill="#4a2800" font-weight="600"><tspan x="140" y="164">(주)</tspan><tspan x="140" dy="13">에이치케이</tspan></text><rect x="300" y="58" width="160" height="38" rx="4" fill="#E8A050" stroke="#c07020" stroke-width="1.5"/><text text-anchor="middle" font-size="10" font-family="Malgun Gothic,sans-serif" fill="#4a2800" font-weight="600"><tspan x="380" y="72">(주)</tspan><tspan x="380" dy="13">티테크</tspan></text><rect x="300" y="104" width="160" height="38" rx="4" fill="#E8A050" stroke="#c07020" stroke-width="1.5"/><text text-anchor="middle" font-size="10" font-family="Malgun Gothic,sans-serif" fill="#4a2800" font-weight="600"><tspan x="380" y="118">(주)</tspan><tspan x="380" dy="13">한스송우</tspan></text></svg>
+      </div>
+    </div>
+    <p class="note" style="margin-top:10px">
+      ★ 권장 동선: <strong>Hall 9 (F→G 순)</strong> → <strong>Hall 10 (F→G 순)</strong>
+      &nbsp;|&nbsp; 부스 번호 앞 두 자리 = 홀 번호, 세 번째 문자 = 구역, 이후 숫자 = 위치(낮을수록 입구 가까움)
+    </p>
+    <div class="section-sub" style="margin-top:24px">업체별 메모 (탭하여 직접 입력)</div>
+    <div class="table-scroll" style="margin-top:10px">
+    <table class="data-table">
+      <thead><tr>
+        <th>등급</th><th>업체명</th><th>부스</th><th>제품</th><th>분류</th>
+        <th>추가 질문 / 메모 ✏️</th><th>후속조치</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">한국트럼프(주)</td>
+          <td class="center mono">10F330</td>
+          <td class="small-text">2D 파이버레이저 절단기</td>
+          <td class="center small-text">글로벌 1위</td>
+          <td class="editable-cell" contenteditable="true" data-placeholder="탭하여 입력..."></td>
+          <td><input type="text" class="followup-input" placeholder="후속조치 메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">(주)아마다코리아</td>
+          <td class="center mono">09G210</td>
+          <td class="small-text">파이버 레이저 가공기</td>
+          <td class="center small-text">일본계 정밀</td>
+          <td class="editable-cell" contenteditable="true" data-placeholder="탭하여 입력..."></td>
+          <td><input type="text" class="followup-input" placeholder="후속조치 메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">(주)에이치케이</td>
+          <td class="center mono">10F530</td>
+          <td class="small-text">레이저 공작기계</td>
+          <td class="center small-text">국내 전문</td>
+          <td class="editable-cell" contenteditable="true" data-placeholder="탭하여 입력..."></td>
+          <td><input type="text" class="followup-input" placeholder="후속조치 메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">형제레이저(주)</td>
+          <td class="center mono">09F850</td>
+          <td class="small-text">3차원 레이저 절단</td>
+          <td class="center small-text">3D 절단</td>
+          <td class="editable-cell" contenteditable="true" data-placeholder="탭하여 입력..."></td>
+          <td><input type="text" class="followup-input" placeholder="후속조치 메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">한스레이저/(주)원공사</td>
+          <td class="center mono">09F570</td>
+          <td class="small-text">파이버 레이저</td>
+          <td class="center small-text">중국 1위 브랜드</td>
+          <td class="editable-cell" contenteditable="true" data-placeholder="탭하여 입력..."></td>
+          <td><input type="text" class="followup-input" placeholder="후속조치 메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">대성기술텍(주)</td>
+          <td class="center mono">09G850</td>
+          <td class="small-text">파이버 레이저 절단기</td>
+          <td class="center small-text">중소형 전문</td>
+          <td class="editable-cell" contenteditable="true" data-placeholder="탭하여 입력..."></td>
+          <td><input type="text" class="followup-input" placeholder="후속조치 메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">(주)한스송우코리아</td>
+          <td class="center mono">10G310</td>
+          <td class="small-text">파이버 레이저 커팅기</td>
+          <td class="center small-text">국내 딜러</td>
+          <td class="editable-cell" contenteditable="true" data-placeholder="탭하여 입력..."></td>
+          <td><input type="text" class="followup-input" placeholder="후속조치 메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">HSG LASER Co., Ltd.</td>
+          <td class="center mono">09F530</td>
+          <td class="small-text">Laser cutting machine</td>
+          <td class="center small-text">중국 제조</td>
+          <td class="editable-cell" contenteditable="true" data-placeholder="탭하여 입력..."></td>
+          <td><input type="text" class="followup-input" placeholder="후속조치 메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">JINAN BODOR CNC MACHINE</td>
+          <td class="center mono">09F230</td>
+          <td class="small-text">laser cutting machine</td>
+          <td class="center small-text">중국 제조</td>
+          <td class="editable-cell" contenteditable="true" data-placeholder="탭하여 입력..."></td>
+          <td><input type="text" class="followup-input" placeholder="후속조치 메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">(주)코포텍</td>
+          <td class="center mono">09F085</td>
+          <td class="small-text">레이저커팅기</td>
+          <td class="center small-text">국내 딜러</td>
+          <td class="editable-cell" contenteditable="true" data-placeholder="탭하여 입력..."></td>
+          <td><input type="text" class="followup-input" placeholder="후속조치 메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">(주)티테크</td>
+          <td class="center mono">10G050</td>
+          <td class="small-text">레이저 컷팅기</td>
+          <td class="center small-text">국내</td>
+          <td class="editable-cell" contenteditable="true" data-placeholder="탭하여 입력..."></td>
+          <td><input type="text" class="followup-input" placeholder="후속조치 메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">(주)토르텍</td>
+          <td class="center mono">09G410</td>
+          <td class="small-text">레이저 절단 시스템</td>
+          <td class="center small-text">국내</td>
+          <td class="editable-cell" contenteditable="true" data-placeholder="탭하여 입력..."></td>
+          <td><input type="text" class="followup-input" placeholder="후속조치 메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">에이텍코퍼레이션(주)</td>
+          <td class="center mono">09G355</td>
+          <td class="small-text">글로리스타 파이버 레이저</td>
+          <td class="center small-text">국내 딜러</td>
+          <td class="editable-cell" contenteditable="true" data-placeholder="탭하여 입력..."></td>
+          <td><input type="text" class="followup-input" placeholder="후속조치 메모..."></td>
+        </tr>
+        <tr style="background:#FFF3D8">
+          <td class="center"><span class="grade-badge grade-A">A</span></td>
+          <td style="font-weight:600">메탈박스</td>
+          <td class="center mono">10F070</td>
+          <td class="small-text">레이저 절단기</td>
+          <td class="center small-text">국내</td>
+          <td class="editable-cell" contenteditable="true" data-placeholder="탭하여 입력..."></td>
+          <td><input type="text" class="followup-input" placeholder="후속조치 메모..."></td>
+        </tr></tbody>
+    </table>
+    </div>
+</div>
+
+<div id="tab4" class="tab-content">
+  <div class="section-title">향후 전시회 일정 (캘린더 등록)</div>
+  
+    <div class="table-scroll">
+    <table class="data-table">
+      <thead><tr>
+        <th>전시회명</th><th>날짜</th><th>장소</th><th>점수</th><th>우선순위</th><th>캘린더 등록</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:#FFF9B3">
+          <td style="font-weight:600;color:#f39c12">월드IT쇼</td>
+          <td>2026-04-22 ~ 04-24</td>
+          <td>COEX Hall A, B1, C</td>
+          <td class="center"><span class="stars">★★★☆☆</span> 3/5</td>
+          <td style="color:#f39c12;font-weight:600">권장 참관</td>
+          <td><a href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=%5B%EC%A0%84%EC%8B%9C%ED%9A%8C%5D%20%EC%9B%94%EB%93%9CIT%EC%87%BC&amp;dates=20260422/20260424&amp;location=COEX%20Hall%20A%2C%20Hall%20B1%2C%20C" target="_blank" class="cal-btn">📅 Google Calendar</a></td>
+        </tr>
+        <tr style="background:#FFF9B3">
+          <td style="font-weight:600;color:#f39c12">2026 서울 일러스트코리아</td>
+          <td>2026-04-23 ~ 04-26</td>
+          <td>COEX Hall B2</td>
+          <td class="center"><span class="stars">★★★☆☆</span> 3/5</td>
+          <td style="color:#f39c12;font-weight:600">권장 참관</td>
+          <td><a href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=%5B%EC%A0%84%EC%8B%9C%ED%9A%8C%5D%202026%20%EC%84%9C%EC%9A%B8%20%EC%9D%BC%EB%9F%AC%EC%8A%A4%ED%8A%B8%EC%BD%94%EB%A6%AC%EC%95%84&amp;dates=20260423/20260426&amp;location=COEX%20Hall%20B2" target="_blank" class="cal-btn">📅 Google Calendar</a></td>
+        </tr>
+        <tr style="background:#FFDCB3">
+          <td style="font-weight:600;color:#e67e22">제70회 MBC건축박람회 외(통합명칭)</td>
+          <td>2026-05-07 ~ 05-10</td>
+          <td>KINTEX 전시홀 3A, 4, 5</td>
+          <td class="center"><span class="stars">★★★★☆</span> 4/5</td>
+          <td style="color:#e67e22;font-weight:600">강력 권장</td>
+          <td><a href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=%5B%EC%A0%84%EC%8B%9C%ED%9A%8C%5D%20%EC%A0%9C70%ED%9A%8C%20MBC%EA%B1%B4%EC%B6%95%EB%B0%95%EB%9E%8C%ED%9A%8C%20%EC%99%B8%28%ED%86%B5%ED%95%A9%EB%AA%85%EC%B9%AD%29&amp;dates=20260507/20260510&amp;location=KINTEX%20%EC%A0%84%EC%8B%9C%ED%99%80%203A%2C%204%2C%205" target="_blank" class="cal-btn">📅 Google Calendar</a></td>
+        </tr></tbody>
+    </table>
+    </div>
+</div>
+
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
