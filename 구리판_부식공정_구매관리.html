@@ -1,0 +1,1660 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>구리판 부식공정 구매관리 시스템</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; background: #f0f2f5; color: #333; }
+
+.nav { background: #4e342e; color: #fff; display: flex; align-items: center; padding: 0 24px; height: 56px; position: fixed; top: 0; left: 0; right: 0; z-index: 100; }
+.nav h1 { font-size: 18px; font-weight: 700; margin-right: 24px; white-space: nowrap; }
+.nav-tabs { display: flex; gap: 4px; }
+.nav-tab { background: transparent; border: none; color: rgba(255,255,255,0.7); padding: 8px 16px; cursor: pointer; font-size: 13px; border-radius: 6px 6px 0 0; transition: all .2s; font-family: inherit; }
+.nav-tab:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.nav-tab.active { background: rgba(255,255,255,0.2); color: #fff; font-weight: 700; }
+
+.fx-bar { background: linear-gradient(135deg, #4e342e, #795548); color: #fff; padding: 0 24px; display: flex; align-items: center; gap: 16px; font-size: 13px; position: fixed; top: 56px; left: 0; right: 0; z-index: 99; height: 40px; }
+.fx-item { display: flex; align-items: center; gap: 8px; padding-right: 16px; border-right: 1px solid rgba(255,255,255,0.2); }
+.fx-item:last-of-type { border-right: none; }
+.fx-label { font-size: 11px; color: rgba(255,255,255,0.7); }
+.fx-value { font-size: 15px; font-weight: 700; color: #ffccbc; }
+.fx-sub { font-size: 11px; color: rgba(255,255,255,0.7); }
+.fx-time { font-size: 11px; color: rgba(255,255,255,0.5); margin-left: auto; }
+.fx-refresh { background: rgba(255,255,255,0.2); border: none; color: #fff; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-family: inherit; }
+.fx-refresh:hover { background: rgba(255,255,255,0.3); }
+
+.main { margin-top: 96px; padding: 24px; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.card { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 24px; margin-bottom: 20px; }
+.card-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; color: #4e342e; display: flex; align-items: center; gap: 8px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { background: #efebe9; color: #4e342e; font-weight: 700; padding: 10px 8px; text-align: center; border-bottom: 2px solid #d7ccc8; white-space: nowrap; }
+td { padding: 8px; border-bottom: 1px solid #e0e0e0; text-align: center; vertical-align: middle; }
+tr:hover { background: #fafafa; }
+
+.form-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 16px; }
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+.form-group label { font-size: 12px; font-weight: 600; color: #666; }
+.form-group input, .form-group select { padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; font-family: inherit; }
+.form-group input:focus, .form-group select:focus { outline: none; border-color: #795548; box-shadow: 0 0 0 2px rgba(121,85,72,0.2); }
+
+.btn { padding: 8px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; font-family: inherit; transition: all .2s; }
+.btn-primary { background: #795548; color: #fff; }
+.btn-primary:hover { background: #5d4037; }
+.btn-danger { background: #e53935; color: #fff; }
+.btn-danger:hover { background: #c62828; }
+.btn-success { background: #43a047; color: #fff; }
+.btn-success:hover { background: #2e7d32; }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+
+.badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; display: inline-block; }
+.badge-good { background: #e8f5e9; color: #2e7d32; }
+.badge-ok { background: #e3f2fd; color: #1565c0; }
+.badge-warn { background: #fff3e0; color: #e65100; }
+.badge-danger { background: #ffebee; color: #c62828; }
+.badge-none { background: #f5f5f5; color: #999; }
+.badge-reserve { background: #fff9c4; color: #f57f17; }
+
+.summary-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px; }
+.summary-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.summary-card .label { font-size: 12px; color: #888; margin-bottom: 4px; }
+.summary-card .value { font-size: 22px; font-weight: 700; color: #4e342e; }
+.summary-card .sub { font-size: 12px; color: #999; margin-top: 4px; }
+
+.auto-calc { background: #e8f5e9; font-weight: 600; color: #2e7d32; }
+.auto-calc-emg { background: #fff3e0; font-weight: 600; color: #e65100; }
+.total-row td { background: #efebe9; font-weight: 700; color: #4e342e; }
+
+.table-wrap { overflow-x: auto; }
+.toolbar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+.toolbar-right { margin-left: auto; display: flex; gap: 8px; }
+
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; }
+.modal-overlay.show { display: flex; }
+.modal { background: #fff; border-radius: 12px; padding: 24px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; }
+.modal h3 { margin-bottom: 16px; color: #4e342e; }
+.modal .form-group { margin-bottom: 12px; }
+.modal .form-group input, .modal .form-group select, .modal .form-group textarea { width: 100%; }
+.modal .form-group textarea { resize: vertical; min-height: 60px; padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; font-family: inherit; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+
+.coeff-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; margin: 12px 0; }
+.coeff-item { background: #f5f5f5; border-radius: 6px; padding: 8px 12px; font-size: 13px; display: flex; justify-content: space-between; }
+.coeff-item .name { color: #666; }
+.coeff-item .val { font-weight: 700; color: #4e342e; }
+
+/* Timing Tab */
+.timing-hero { border-radius: 12px; padding: 28px 32px; margin-bottom: 20px; color: #fff; }
+.timing-hero.signal-buy { background: linear-gradient(135deg, #1b5e20, #388e3c); }
+.timing-hero.signal-wait { background: linear-gradient(135deg, #e65100, #f57c00); }
+.timing-hero.signal-hold { background: linear-gradient(135deg, #37474f, #546e7a); }
+.timing-hero .signal-badge { display: inline-block; padding: 6px 20px; border-radius: 20px; font-size: 20px; font-weight: 900; background: rgba(255,255,255,0.25); margin-bottom: 8px; }
+.timing-hero .signal-reason { font-size: 13px; opacity: .85; margin-top: 8px; line-height: 1.6; }
+.timing-kpi { display: grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap: 12px; margin-top: 16px; }
+.timing-kpi-item { background: rgba(255,255,255,0.15); border-radius: 8px; padding: 12px; text-align: center; }
+.timing-kpi-item .kl { font-size: 11px; opacity: .7; }
+.timing-kpi-item .kv { font-size: 20px; font-weight: 800; }
+.timing-kpi-item .ks { font-size: 11px; opacity: .6; }
+.timing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 900px) { .timing-grid { grid-template-columns: 1fr; } }
+.season-bar { display: flex; align-items: flex-end; gap: 2px; height: 80px; }
+.season-col { flex: 1; background: #795548; border-radius: 3px 3px 0 0; transition: all .2s; position: relative; }
+.season-col.low { background: #2e7d32; }
+.season-col.high { background: #c62828; }
+.season-col .s-label { position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); font-size: 10px; color: #888; }
+.add-price-row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 12px; }
+
+/* LME Tab */
+.lme-hero { background: linear-gradient(135deg, #b71c1c, #d32f2f); color: #fff; border-radius: 12px; padding: 32px; margin-bottom: 20px; }
+.lme-hero .price-main { font-size: 48px; font-weight: 900; line-height: 1; }
+.lme-hero .price-unit { font-size: 16px; opacity: .8; margin-top: 4px; }
+.lme-hero .price-row { display: flex; gap: 32px; flex-wrap: wrap; margin-top: 16px; }
+.lme-hero .price-item .pl { font-size: 13px; opacity: .7; }
+.lme-hero .price-item .pv { font-size: 18px; font-weight: 700; }
+.lme-change-up { color: #ff8a80; }
+.lme-change-down { color: #b9f6ca; }
+.lme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 700px) { .lme-grid { grid-template-columns: 1fr; } }
+.lme-calc-box { background: #fff3e0; border-radius: 10px; padding: 20px; }
+.lme-calc-box .calc-title { font-weight: 700; color: #bf360c; margin-bottom: 12px; font-size: 15px; }
+.lme-calc-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #ffe0b2; font-size: 13px; }
+.lme-calc-row:last-child { border-bottom: none; font-weight: 700; font-size: 14px; }
+.lme-manual { background: #fafafa; border-radius: 10px; padding: 20px; border: 1px solid #e0e0e0; }
+.lme-note { font-size: 12px; color: #999; margin-top: 8px; line-height: 1.5; }
+.lme-chart-wrap { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
+canvas#lme-chart { width: 100%; height: 240px; display: block; }
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <h1>구리판 부식공정 구매관리</h1>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showTab('materials',this)">원소재 단가관리</button>
+    <button class="nav-tab" onclick="showTab('suppliers',this)">거래처 정보</button>
+    <button class="nav-tab" onclick="showTab('history',this)">입고·사용 내역</button>
+    <button class="nav-tab" onclick="showTab('inventory',this)">재고 현황</button>
+    <button class="nav-tab" onclick="showTab('lme',this)">LME 구리 시세</button>
+    <button class="nav-tab" onclick="showTab('timing',this)">구매 타이밍 분석</button>
+  </div>
+</div>
+
+<div class="fx-bar">
+  <div class="fx-item">
+    <span class="fx-label">USD/KRW</span>
+    <span class="fx-value" id="fx-rate-display">-</span>
+  </div>
+  <div class="fx-item">
+    <span class="fx-label">LME 구리 (USD/t)</span>
+    <span class="fx-value" id="fx-lme-display">-</span>
+    <span class="fx-sub" id="fx-lme-change"></span>
+  </div>
+  <div class="fx-item">
+    <span class="fx-label">구리 원가 환산</span>
+    <span class="fx-value" id="fx-copper-krw">-</span>
+    <span class="fx-sub">원/kg</span>
+  </div>
+  <span class="fx-time" id="fx-time-display"></span>
+  <button class="fx-refresh" onclick="fetchAll()">새로고침</button>
+</div>
+
+<div class="main">
+  <!-- Tab 1: 원소재 단가관리 -->
+  <div id="tab-materials" class="tab-content active">
+    <div class="card">
+      <div class="card-title">구리판 부식 원소재 구매 단가 관리 (본사)</div>
+      <div class="toolbar">
+        <button class="btn btn-primary" onclick="openMaterialModal()">+ 원소재 추가</button>
+        <div class="toolbar-right"><button class="btn btn-success" onclick="exportCSV('materials')">CSV 내보내기</button></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>No</th><th>원소재명</th><th>공급업체</th><th>규격</th><th>구매단위</th><th>원산지</th><th>단가(원)</th><th>최종업데이트</th><th>담당자</th><th>월 사용량</th><th>비고</th><th>관리</th></tr></thead>
+          <tbody id="materials-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 2: 거래처 정보 -->
+  <div id="tab-suppliers" class="tab-content">
+    <div class="card">
+      <div class="card-title">거래처 정보</div>
+      <div class="toolbar">
+        <button class="btn btn-primary" onclick="openSupplierModal()">+ 거래처 추가</button>
+        <div class="toolbar-right"><button class="btn btn-success" onclick="exportCSV('suppliers')">CSV 내보내기</button></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>No</th><th>거래처명</th><th>주소</th><th>대표</th><th>휴대폰</th><th>회사전화</th><th>팩스</th><th>이메일</th><th>주요 공급품목</th><th>결제조건</th><th>리드타임</th><th>비고</th><th>관리</th></tr></thead>
+          <tbody id="suppliers-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 3: 입고·사용 내역 -->
+  <div id="tab-history" class="tab-content">
+    <div class="card">
+      <div class="card-title">소모 계수 (판당 원자재 소모량)</div>
+      <div class="coeff-grid" id="coeff-display"></div>
+      <p style="font-size:12px;color:#999;margin-top:4px;">* "사용" / "비상소진(예비)" 입력 시 판수 × 소모계수로 원자재 소모량 자동 산출</p>
+    </div>
+    <div class="card">
+      <div class="card-title">입고·사용 내역 등록</div>
+      <div class="form-row">
+        <div class="form-group"><label>날짜</label><input type="date" id="h-date"></div>
+        <div class="form-group">
+          <label>유형</label>
+          <select id="h-type" onchange="onTypeChange()">
+            <option value="">선택</option>
+            <option value="사용">사용 (국내산)</option>
+            <option value="비상소진(예비)">비상소진(예비) (일본산)</option>
+            <option value="입고">입고</option>
+          </select>
+        </div>
+        <div class="form-group"><label>구리판 규격</label>
+          <select id="h-spec">
+            <option value="2T 500㎜ x 600㎜">2T 500㎜ x 600㎜</option>
+          </select>
+        </div>
+        <div class="form-group" id="qty-group"><label id="qty-label">판수</label><input type="number" id="h-qty" min="0" step="1" oninput="updateCalcPreview()"></div>
+        <div class="form-group" id="unit-display-group"><label>단위</label><input type="text" id="h-unit-display" readonly style="background:#f5f5f5;width:60px;"></div>
+        <div class="form-group"><label>담당자</label><input type="text" id="h-person"></div>
+        <div class="form-group"><label>비고</label><input type="text" id="h-note" style="width:160px;"></div>
+        <button class="btn btn-primary" onclick="addHistory()" style="align-self:flex-end;">등록</button>
+      </div>
+      <div id="calc-preview" style="display:none;background:#e8f5e9;border-radius:8px;padding:12px;font-size:13px;margin-bottom:8px;">
+        <strong>자동 산출:</strong> <span id="calc-preview-text"></span>
+      </div>
+      <div id="calc-preview-emg" style="display:none;background:#fff3e0;border-radius:8px;padding:12px;font-size:13px;margin-bottom:8px;">
+        <strong>비상소진(예비) — 일본산 재고 차감:</strong> <span id="calc-preview-emg-text"></span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">내역 목록</div>
+      <div class="toolbar">
+        <div class="form-group" style="flex-direction:row;align-items:center;gap:8px;">
+          <label>월 필터:</label>
+          <input type="month" id="h-filter-month" onchange="renderHistory()">
+          <button class="btn btn-sm" onclick="document.getElementById('h-filter-month').value='';renderHistory();">전체</button>
+        </div>
+        <div class="toolbar-right"><button class="btn btn-success" onclick="exportCSV('history')">CSV 내보내기</button></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>No</th><th>날짜</th><th>유형</th><th>규격</th><th>수량</th><th>단위</th>
+            <th>카파루A(L)</th><th>카파루C(L)</th><th>필름(m)</th><th>염화철(kg)</th>
+            <th>KK감광액(L)</th><th>현상액(kg)</th><th>가성소다(kg)</th><th>테이프(m)</th><th>탄산칼슘(kg)</th>
+            <th>담당자</th><th>비고</th><th>관리</th>
+          </tr></thead>
+          <tbody id="history-body"></tbody>
+          <tfoot id="history-foot"></tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 4: 재고 현황 -->
+  <div id="tab-inventory" class="tab-content">
+    <div class="summary-row" id="inv-summary"></div>
+    <div class="card">
+      <div class="card-title">재고 현황</div>
+      <div class="toolbar">
+        <button class="btn btn-primary" onclick="openInitStockModal()">초기재고 설정</button>
+        <button class="btn btn-primary" onclick="openSafetyStockModal()">안전재고 설정</button>
+        <div class="toolbar-right"><button class="btn btn-success" onclick="exportCSV('inventory')">CSV 내보내기</button></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>No</th><th>원소재명</th><th>공급업체</th><th>규격</th><th>구매단위</th>
+            <th>안전재고</th><th>현재재고</th><th>재고상태</th><th>단가(원)</th><th>재고금액(원)</th>
+            <th>소비처</th><th>비고</th>
+          </tr></thead>
+          <tbody id="inventory-body"></tbody>
+          <tfoot id="inventory-foot"></tfoot>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">현행 관리 한계 사항</div>
+      <div id="inv-warnings" style="font-size:13px;line-height:1.8;"></div>
+    </div>
+  </div>
+
+  <!-- Tab 5: LME 구리 시세 -->
+  <div id="tab-lme" class="tab-content">
+    <div class="lme-hero">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;">
+        <div>
+          <div style="font-size:13px;opacity:.8;margin-bottom:4px;">LME 구리 현물 기준가 (COMEX HG 선물)</div>
+          <div class="price-main" id="lme-main-price">-</div>
+          <div class="price-unit">USD / tonne &nbsp;|&nbsp; <span id="lme-per-lb">-</span> USD/lb</div>
+        </div>
+        <div class="price-row">
+          <div class="price-item"><div class="pl">전일 대비</div><div class="pv" id="lme-change-disp">-</div></div>
+          <div class="price-item"><div class="pl">KRW 환산</div><div class="pv" id="lme-krw-disp">-</div><div style="font-size:11px;opacity:.7;">원/kg</div></div>
+          <div class="price-item"><div class="pl">현재 구매단가</div><div class="pv">23,000</div><div style="font-size:11px;opacity:.7;">원/kg (동연금속)</div></div>
+          <div class="price-item"><div class="pl">프리미엄</div><div class="pv" id="lme-premium-disp">-</div><div style="font-size:11px;opacity:.7;">원/kg (가공비 포함)</div></div>
+        </div>
+      </div>
+      <div style="margin-top:16px;font-size:12px;opacity:.6;" id="lme-updated-at"></div>
+    </div>
+
+    <div class="lme-chart-wrap">
+      <div style="font-weight:700;color:#4e342e;margin-bottom:16px;">LME 구리 가격 추이 (최근 1개월, USD/tonne)</div>
+      <canvas id="lme-chart"></canvas>
+      <div style="font-size:12px;color:#999;margin-top:8px;" id="lme-chart-note">데이터 로딩 중...</div>
+    </div>
+
+    <div class="lme-grid">
+      <div class="lme-calc-box">
+        <div class="calc-title">구리판 원가 분석 (현재 환율 기준)</div>
+        <div class="lme-calc-row"><span>LME 구리 (USD/tonne)</span><span id="calc-lme-t">-</span></div>
+        <div class="lme-calc-row"><span>USD/KRW 환율</span><span id="calc-fx">-</span></div>
+        <div class="lme-calc-row"><span>LME 구리 원화 환산 (원/tonne)</span><span id="calc-lme-krw-t">-</span></div>
+        <div class="lme-calc-row"><span>LME 구리 원화 환산 (원/kg)</span><span id="calc-lme-krw-kg">-</span></div>
+        <div class="lme-calc-row"><span>현재 구매 단가 (원/kg)</span><span>23,000원</span></div>
+        <div class="lme-calc-row"><span>프리미엄 (가공비·납품마진 등)</span><span id="calc-premium">-</span></div>
+      </div>
+      <div class="lme-manual">
+        <div style="font-weight:700;color:#4e342e;margin-bottom:12px;">수동 단가 입력 (API 불가 시)</div>
+        <div class="form-group" style="margin-bottom:8px;">
+          <label>LME 구리 가격 (USD/tonne)</label>
+          <input type="number" id="lme-manual-input" placeholder="예: 9200" oninput="applyManualLme()">
+        </div>
+        <div class="form-group" style="margin-bottom:8px;">
+          <label>USD/KRW 환율</label>
+          <input type="number" id="lme-fx-input" placeholder="예: 1380" oninput="applyManualLme()">
+        </div>
+        <div id="lme-manual-result" style="margin-top:12px;font-size:13px;color:#795548;"></div>
+        <p class="lme-note">* LME 공식 시세는 런던금속거래소(lme.com) 참조<br>* COMEX HG 선물 기준으로 실시간 조회 시도 (지연 가능)</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 6: 구매 타이밍 분석 -->
+  <div id="tab-timing" class="tab-content">
+    <div class="timing-hero signal-hold" id="timing-hero">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;">
+        <div>
+          <div class="signal-badge" id="timing-signal">분석 중...</div>
+          <div style="font-size:14px;margin-top:4px;" id="timing-headline">LME 시세 및 환율 데이터를 기반으로 분석합니다.</div>
+          <div class="signal-reason" id="timing-reason"></div>
+        </div>
+        <div style="text-align:right;font-size:12px;opacity:.7;">
+          <div>국내 리드타임: <strong>1개월</strong></div>
+          <div>수입 리드타임: <strong>3개월</strong></div>
+          <div style="margin-top:4px;" id="timing-updated"></div>
+        </div>
+      </div>
+      <div class="timing-kpi" id="timing-kpi"></div>
+    </div>
+
+    <div class="timing-grid">
+      <div class="card">
+        <div class="card-title">월별 매입단가 패턴 (전체 연도 평균)</div>
+        <div style="margin-bottom:8px;font-size:12px;color:#888;">낮을수록 매수 유리 — 녹색: 하위 3개월, 적색: 상위 3개월</div>
+        <div class="season-bar" id="season-bar"></div>
+        <div style="margin-top:24px;font-size:12px;color:#666;" id="season-insight"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">프리미엄 분석 (현재)</div>
+        <div id="premium-analysis" style="font-size:13px;line-height:2;"></div>
+        <div style="margin-top:12px;padding:12px;background:#fff8e1;border-radius:8px;font-size:12px;color:#795548;" id="premium-note">
+          프리미엄 = 실제 매입단가 - LME 기준 원가 (원/kg)<br>
+          가공비, 운송비, 납품마진 등이 포함된 금액입니다.
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <div class="card-title" style="justify-content:space-between;">
+        <span>연도별 구리 KG당 매입단가 현황</span>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-primary btn-sm" onclick="openAddPriceModal()">매입단가 추가</button>
+          <button class="btn btn-success btn-sm" onclick="exportCSV('pricing')">CSV 내보내기</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="pricing-table">
+          <thead id="pricing-head"></thead>
+          <tbody id="pricing-body"></tbody>
+          <tfoot id="pricing-foot"></tfoot>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <div class="card-title">매입단가 추이 차트 (연도별 비교)</div>
+      <canvas id="pricing-chart" style="width:100%;height:300px;display:block;"></canvas>
+      <div style="font-size:12px;color:#999;margin-top:8px;" id="pricing-chart-legend"></div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <div class="card-title">구매 전략 가이드</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;">
+        <div style="padding:16px;background:#e8f5e9;border-radius:8px;">
+          <div style="font-weight:700;color:#2e7d32;margin-bottom:8px;">매수 적기 조건</div>
+          <ul style="font-size:13px;color:#333;line-height:1.8;padding-left:18px;">
+            <li>LME 시세 하락 추세 (최근 5일 기준)</li>
+            <li>현재 LME 기준 원가 < 최근 매입단가</li>
+            <li>환율 안정세 또는 하락</li>
+            <li>월별 패턴상 저가 구간 (역사적 평균)</li>
+          </ul>
+        </div>
+        <div style="padding:16px;background:#fff3e0;border-radius:8px;">
+          <div style="font-weight:700;color:#e65100;margin-bottom:8px;">관망 조건</div>
+          <ul style="font-size:13px;color:#333;line-height:1.8;padding-left:18px;">
+            <li>LME 시세 급등 추세</li>
+            <li>환율 급등 (원화 약세)</li>
+            <li>재고 충분 (안전재고 이상 확보)</li>
+            <li>월별 패턴상 고가 구간</li>
+          </ul>
+        </div>
+        <div style="padding:16px;background:#fce4ec;border-radius:8px;">
+          <div style="font-weight:700;color:#c62828;margin-bottom:8px;">즉시 매수 조건</div>
+          <ul style="font-size:13px;color:#333;line-height:1.8;padding-left:18px;">
+            <li>재고 부족 또는 안전재고 미달</li>
+            <li>LME 시세 장기 상승 전환 시그널</li>
+            <li>리드타임 내 소진 예상 시</li>
+            <li>환율 저점 확인 후 반등 시작</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Price Modal -->
+<div class="modal-overlay" id="addprice-modal">
+  <div class="modal">
+    <h3>매입단가 추가/수정</h3>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label>연도</label>
+      <input type="number" id="ap-year" min="2017" max="2030" placeholder="예: 2026">
+    </div>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label>월</label>
+      <select id="ap-month">
+        <option value="">선택</option>
+        <option value="1">1월</option><option value="2">2월</option><option value="3">3월</option>
+        <option value="4">4월</option><option value="5">5월</option><option value="6">6월</option>
+        <option value="7">7월</option><option value="8">8월</option><option value="9">9월</option>
+        <option value="10">10월</option><option value="11">11월</option><option value="12">12월</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label>매입단가 (원/kg)</label>
+      <input type="number" id="ap-price" min="0" step="10" placeholder="예: 17000">
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('addprice-modal')">취소</button>
+      <button class="btn btn-primary" onclick="saveAddPrice()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Material Modal -->
+<div class="modal-overlay" id="material-modal">
+  <div class="modal">
+    <h3 id="m-modal-title">원소재 추가</h3>
+    <input type="hidden" id="m-edit-idx">
+    <div class="form-group"><label>원소재명</label><input type="text" id="m-name"></div>
+    <div class="form-group"><label>공급업체</label><input type="text" id="m-supplier"></div>
+    <div class="form-group"><label>규격</label><input type="text" id="m-spec"></div>
+    <div class="form-group"><label>구매단위</label><input type="text" id="m-unit"></div>
+    <div class="form-group"><label>원산지</label><input type="text" id="m-origin"></div>
+    <div class="form-group"><label>단가(원)</label><input type="number" id="m-price"></div>
+    <div class="form-group"><label>담당자</label><input type="text" id="m-person"></div>
+    <div class="form-group"><label>월 사용량</label><input type="text" id="m-monthly"></div>
+    <div class="form-group"><label>비고</label><textarea id="m-note"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeMaterialModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveMaterial()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Supplier Modal -->
+<div class="modal-overlay" id="supplier-modal">
+  <div class="modal">
+    <h3 id="s-modal-title">거래처 추가</h3>
+    <input type="hidden" id="s-edit-idx">
+    <div class="form-group"><label>거래처명</label><input type="text" id="s-name"></div>
+    <div class="form-group"><label>주소</label><input type="text" id="s-address"></div>
+    <div class="form-group"><label>대표</label><input type="text" id="s-ceo"></div>
+    <div class="form-group"><label>휴대폰</label><input type="text" id="s-phone"></div>
+    <div class="form-group"><label>회사전화</label><input type="text" id="s-tel"></div>
+    <div class="form-group"><label>팩스</label><input type="text" id="s-fax"></div>
+    <div class="form-group"><label>이메일</label><input type="text" id="s-email"></div>
+    <div class="form-group"><label>주요 공급품목</label><input type="text" id="s-items"></div>
+    <div class="form-group"><label>결제조건</label><input type="text" id="s-payment"></div>
+    <div class="form-group"><label>리드타임</label><input type="text" id="s-leadtime"></div>
+    <div class="form-group"><label>비고</label><input type="text" id="s-note"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeSupplierModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveSupplier()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Init Stock Modal -->
+<div class="modal-overlay" id="initstock-modal">
+  <div class="modal">
+    <h3>초기재고 설정</h3>
+    <p style="font-size:13px;color:#666;margin-bottom:16px;">시스템 도입 시점 재고. 이후 입고·사용 내역에서 자동 계산됩니다.</p>
+    <div id="initstock-fields"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('initstock-modal')">취소</button>
+      <button class="btn btn-primary" onclick="saveInitStock()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Safety Stock Modal -->
+<div class="modal-overlay" id="safetystock-modal">
+  <div class="modal">
+    <h3>안전재고 설정</h3>
+    <div id="safetystock-fields"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('safetystock-modal')">취소</button>
+      <button class="btn btn-primary" onclick="saveSafetyStock()">저장</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========== CONSTANTS ==========
+const STORAGE_KEY = 'copper_etching_mgmt_v1';
+const KG_PER_PLATE = 5.4;
+
+const DEFAULT_COEFFICIENTS = {
+  kapA:   { name: '카파루A (L/판)', value: 0.68 },
+  kapC:   { name: '카파루C (L/판)', value: 0.06 },
+  film:   { name: '필름 (m/판)',    value: 0.5  },
+  fecl:   { name: '염화철 (kg/판)', value: 16.56 },
+  kkPhoto:{ name: 'KK감광액 (L/판)',value: 0.818 },
+  develop:{ name: '현상액 (kg/판)', value: 0.0118 },
+  caustic:{ name: '가성소다 (kg/판)',value: 0.068 },
+  tape:   { name: '테이프 (m/판)',  value: 1.2  },
+  caco3:  { name: '탄산칼슘 (kg/판)',value: 0.019 },
+};
+
+// 재고 품목 정의. stockUnit: 재고 추적 단위, displayUnit: 표시 단위, convFactor: displayUnit당 stockUnit 수
+const INVENTORY_ITEMS = [
+  { key:'copper_dy',  name:'구리판', supplier:'㈜동연금속',    spec:'2T 500㎜ x 600㎜', displayUnit:'판', stockUnit:'판', convFactor:1, price:23000, usage:'구리 부식공정', note:'1판≈5.4kg\n월~176판(950kg)÷22일×30일=ROP≈240판', isCopper:true },
+  { key:'copper_st',  name:'구리판', supplier:'에스티씨메탈㈜', spec:'2T 500㎜ x 600㎜', displayUnit:'판', stockUnit:'판', convFactor:1, price:23100, usage:'구리 부식공정', note:'2차 공급업체', isCopper:true },
+  { key:'kapA_jp',    name:'카파루 A약', supplier:'케이앤디(일본)', spec:'10L', displayUnit:'캔', stockUnit:'L', convFactor:10, price:215758, usage:'구리 에칭 공정', note:'예비재고 — 비상소진 시만 사용', isReserve:true, coeffKey:'kapA' },
+  { key:'kapA_kr',    name:'카파루 A약', supplier:'광일글로벌(국내)', spec:'10L', displayUnit:'캔', stockUnit:'L', convFactor:10, price:110000, usage:'구리 에칭 공정', note:'주력 사용. ROP≈19L', coeffKey:'kapA' },
+  { key:'kapC_jp',    name:'카파루 C약', supplier:'케이앤디(일본)', spec:'1L', displayUnit:'캔', stockUnit:'L', convFactor:1, price:152058, usage:'구리 에칭 공정', note:'예비재고 — 비상소진 시만 사용', isReserve:true, coeffKey:'kapC' },
+  { key:'kapC_kr',    name:'카파루 C약', supplier:'광일글로벌(국내)', spec:'1L', displayUnit:'캔', stockUnit:'L', convFactor:1, price:90000, usage:'구리 에칭 공정', note:'주력 사용. ROP≈1.7L', coeffKey:'kapC' },
+  { key:'kf95',       name:'KF95GD(A2) 노란수지', supplier:'상동화㈜', spec:'420㎜*594㎜', displayUnit:'장', stockUnit:'장', convFactor:1, price:38000, usage:'구리 필름 공정', note:'월60장÷22일×3일=ROP≈8장' },
+  { key:'film24',     name:'필름', supplier:'유니테크시스템', spec:"24' 610㎜×60m", displayUnit:'롤', stockUnit:'m', convFactor:60, price:710000, usage:'구리 부식공정', note:'월1.5롤÷22일×20일=ROP≈1.4롤', coeffKey:'film' },
+  { key:'film28',     name:'필름', supplier:'유니테크시스템', spec:"28' 710㎜×60m", displayUnit:'롤', stockUnit:'m', convFactor:60, price:843000, usage:'구리 부식공정', note:'월 사용량 미파악' },
+  { key:'film33',     name:'필름', supplier:'유니테크시스템', spec:"33' 838㎜×60m", displayUnit:'롤', stockUnit:'m', convFactor:60, price:993000, usage:'구리 부식공정', note:'월 사용량 미파악' },
+  { key:'fecl38',     name:'염화철', supplier:'㈜일성화학', spec:'0.38농도', displayUnit:'kg', stockUnit:'kg', convFactor:1, price:190, usage:'구리 에칭 공정', note:'43% 소진 후 전환', coeffKey:'fecl' },
+  { key:'fecl43',     name:'염화철', supplier:'㈜일성화학', spec:'0.43농도', displayUnit:'kg', stockUnit:'kg', convFactor:1, price:270, usage:'구리 에칭 공정', note:'현재 사용 중', coeffKey:'fecl' },
+  { key:'kkPhoto',    name:'KK감광액(PVA)', supplier:'서울교역', spec:'18L', displayUnit:'통', stockUnit:'L', convFactor:18, price:70000, usage:'감광막 형성', note:'월26.4L÷22일×4일=ROP≈4.8L', coeffKey:'kkPhoto' },
+  { key:'develop',    name:'현상액(무스크롬산)', supplier:'케이제이켐㈜', spec:'25kg', displayUnit:'통', stockUnit:'kg', convFactor:25, price:500000, usage:'현상 공정', note:'월2.08kg÷22일×3일=ROP≈0.3kg', coeffKey:'develop' },
+  { key:'caustic',    name:'가성소다', supplier:'㈜삼주', spec:'25kg', displayUnit:'kg', stockUnit:'kg', convFactor:1, price:1750, usage:'탈막 세척', note:'월12kg÷22일×3일=ROP≈1.6kg', coeffKey:'caustic' },
+  { key:'tape',       name:'테이프', supplier:'경북수출포장', spec:'50cm폭×180m', displayUnit:'박스(4개)', stockUnit:'m', convFactor:720, price:80000, usage:'뒷판 부식방지', note:'1박스=4개×180m=720m\nROP≈0.05박스', coeffKey:'tape' },
+  { key:'caco3',      name:'탄산칼슘', supplier:'대진상사', spec:'20kg', displayUnit:'말', stockUnit:'kg', convFactor:20, price:25000, usage:'기름기 제거', note:'월3.3kg÷22일×3일=ROP≈0.45kg', coeffKey:'caco3' },
+];
+
+function getDefaultData() {
+  return {
+    materials: [
+      { name:'구리판', supplier:'㈜동연금속', spec:'2T 500㎜ x 600㎜', unit:'kg', origin:'-', price:23000, updated:'2026-02-12', person:'김영환 이사', monthly:'950kg', note:'한판당 약 5.4kg' },
+      { name:'구리판', supplier:'에스티씨메탈㈜', spec:'2T 500㎜ x 600㎜', unit:'kg', origin:'-', price:23100, updated:'2026-02-28', person:'김영재 부장', monthly:'-', note:'' },
+      { name:'카파루 A약', supplier:'케이앤디', spec:'10L', unit:'1캔', origin:'일본', price:215758, updated:'2026-02-04', person:'김영재 부장', monthly:'60L', note:'일본산 예비재고 (수입가×1.22)' },
+      { name:'카파루 A약', supplier:'광일글로벌', spec:'10L', unit:'1캔', origin:'국내', price:110000, updated:'2026-04-01', person:'김영재 부장', monthly:'60L', note:'국내산 — 주력 사용' },
+      { name:'카파루 C약', supplier:'케이앤디', spec:'1L', unit:'1캔', origin:'일본', price:152058, updated:'2026-02-04', person:'김영재 부장', monthly:'5.3L', note:'일본산 예비재고 (수입가×1.22)' },
+      { name:'카파루 C약', supplier:'광일글로벌', spec:'1L', unit:'1캔', origin:'국내', price:90000, updated:'2026-04-01', person:'정동희 대리', monthly:'5.3L', note:'국내산 — 주력 사용' },
+      { name:'필름', supplier:'유니테크시스템', spec:"24' 610㎜*60m", unit:'1롤', origin:'-', price:710000, updated:'2026-02-23', person:'정동희 대리', monthly:'1.5롤', note:'환율 50원↑ 변동시 단가 변경' },
+      { name:'필름', supplier:'유니테크시스템', spec:"28' 710㎜*60m", unit:'1롤', origin:'-', price:843000, updated:'2026-02-23', person:'정동희 대리', monthly:'미파악', note:'' },
+      { name:'필름', supplier:'유니테크시스템', spec:"33' 838㎜*60m", unit:'1롤', origin:'-', price:993000, updated:'2026-02-23', person:'정동희 대리', monthly:'미파악', note:'' },
+      { name:'염화철', supplier:'㈜일성화학', spec:'0.38농도', unit:'1kg', origin:'-', price:190, updated:'2026-03-30', person:'정동희 대리', monthly:'2,915kg', note:'43% 소진 후 전환' },
+      { name:'염화철', supplier:'㈜일성화학', spec:'0.43농도', unit:'1kg', origin:'-', price:270, updated:'2026-03-30', person:'정동희 대리', monthly:'-', note:'현재 사용 중' },
+      { name:'KK감광액(PVA)', supplier:'서울교역', spec:'18L', unit:'1통', origin:'-', price:70000, updated:'2026-03-10', person:'정동희 대리', monthly:'26.4L', note:'' },
+      { name:'현상액(무스크롬산)', supplier:'케이제이켐㈜', spec:'25kg', unit:'1통', origin:'-', price:500000, updated:'2026-01-28', person:'정동희 대리', monthly:'2.08kg', note:'' },
+      { name:'가성소다', supplier:'㈜삼주', spec:'25kg', unit:'1kg', origin:'-', price:1750, updated:'2026-01-13', person:'정동희 대리', monthly:'12kg', note:'' },
+      { name:'테이프', supplier:'경북수출포장', spec:'50cm폭×180m', unit:'1박스 4개', origin:'-', price:80000, updated:'2026-01-15', person:'정동희 대리', monthly:'1.2개', note:'' },
+      { name:'탄산칼슘', supplier:'대진상사', spec:'20kg', unit:'말', origin:'-', price:25000, updated:'2026-02-19', person:'정동희 대리', monthly:'3.3kg', note:'' },
+      { name:'KF95GD(A2) 노란수지', supplier:'상동화㈜', spec:'420㎜*594㎜', unit:'장', origin:'-', price:38000, updated:'2026-03-24', person:'정동희 대리', monthly:'60장', note:'' },
+    ],
+    suppliers: [
+      { name:'동연금속', address:'경기도 구리시 동구릉로395번길 116, 1층', ceo:'윤주연', phone:'010-9498-3495', tel:'031-527-5305', fax:'031-527-5307', email:'dym0701@naver.com', items:'구리판', payment:'월 마감 후 익월 10일', leadtime:'1개월', note:'최종거래일 26.02.12' },
+      { name:'에스티씨메탈㈜', address:'경기도 시흥시 오이도로 21, 9동 918호', ceo:'이응찬', phone:'010-5237-3017', tel:'031-8041-4741', fax:'031-8041-4742', email:'ecl6389@hanmail.net', items:'구리판', payment:'', leadtime:'1개월', note:'최종거래일 26.02.28' },
+      { name:'케이앤디', address:'부산광역시 남구 수영로 295, 세웅빌딩 406호', ceo:'손동욱', phone:'010-9324-1789', tel:'051-468-5330', fax:'0505-360-5330', email:'', items:'카파루 A,C (일본)', payment:'', leadtime:'3개월', note:'최종거래일 26.02.04' },
+      { name:'광일글로벌', address:'서울특별시 중구 을지로18길 39-9', ceo:'김지성', phone:'010-5609-0720', tel:'02-2274-3135', fax:'02-2274-3139', email:'dwct@naver.com', items:'카파루 A,C (국내)', payment:'', leadtime:'1주', note:'최종거래일 26.04.01' },
+      { name:'유니테크시스템', address:'서울특별시 금천구 가산디지털1로 2, 우림라이온스밸리 2차 404호', ceo:'윤진용', phone:'010-5324-3941', tel:'02-2027-2274', fax:'02-2027-2276', email:'unitech2274@hanmail.net', items:'필름', payment:'', leadtime:'15~20일', note:'' },
+      { name:'㈜일성화학', address:'인천광역시 남동구 남동서로316번길 20', ceo:'정윤환', phone:'', tel:'032-812-3001', fax:'032-812-7009', email:'ohgood99@naver.com', items:'염화철', payment:'', leadtime:'4일', note:'' },
+      { name:'상동화㈜', address:'서울특별시 중구 퇴계로 286', ceo:'김원기', phone:'010-8980-0022', tel:'02-2279-5621', fax:'02-2277-7015', email:'', items:'KF95GD(A2) 노란수지', payment:'', leadtime:'3일', note:'' },
+      { name:'서울교역', address:'서울특별시 중구 동호로31길 31', ceo:'박기순', phone:'010-3790-9318', tel:'02-2274-0460', fax:'02-2274-4060', email:'', items:'KK감광액(PVA)', payment:'', leadtime:'4일', note:'' },
+      { name:'케이제이켐㈜', address:'인천광역시 계양구 계산새로87번길 15', ceo:'김준기', phone:'', tel:'032-541-1173', fax:'032-232-6956', email:'kjchembill@gmail.com', items:'현상액(무스크롬산)', payment:'', leadtime:'3일', note:'' },
+      { name:'㈜삼주', address:'경기도 시흥시 경제로 271', ceo:'김영주', phone:'010-3112-1583', tel:'031-432-1583', fax:'031-432-1742', email:'', items:'가성소다', payment:'', leadtime:'3일', note:'' },
+      { name:'경북수출포장', address:'서울특별시 중구 동호로 385-2', ceo:'우재하', phone:'', tel:'02-2279-8445', fax:'02-2268-1386', email:'', items:'테이프', payment:'', leadtime:'당일', note:'' },
+      { name:'대진상사', address:'서울특별시 종로구 율곡로8길 99', ceo:'곽원종', phone:'', tel:'02-766-8410', fax:'', email:'kantoc2@naver.com', items:'탄산칼슘', payment:'', leadtime:'3일', note:'' },
+    ],
+    history: [],
+    coefficients: JSON.parse(JSON.stringify(DEFAULT_COEFFICIENTS)),
+    initialStock: {
+      copper_dy: 223, copper_st: 241,
+      kapA_jp: 1110, kapA_kr: 170,
+      kapC_jp: 85,   kapC_kr: 20,
+      kf95: 0, film24: 4920, film28: 360, film33: 180,
+      fecl38: 0, fecl43: 0, kkPhoto: 0, develop: 0,
+      caustic: 0, tape: 0, caco3: 0,
+    },
+    safetyStock: { kapA_jp:'예비재고', kapC_jp:'예비재고' },
+  };
+}
+
+let data = loadData();
+
+function loadData() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    try {
+      const d = JSON.parse(saved);
+      if (!d.coefficients) d.coefficients = JSON.parse(JSON.stringify(DEFAULT_COEFFICIENTS));
+      if (!d.initialStock) d.initialStock = getDefaultData().initialStock;
+      if (!d.safetyStock) d.safetyStock = {};
+      return d;
+    } catch(e) {}
+  }
+  return getDefaultData();
+}
+function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+
+// ========== NAV ==========
+function showTab(name, el) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  el.classList.add('active');
+  if (name === 'inventory') renderInventory();
+  if (name === 'history') renderHistory();
+  if (name === 'lme') renderLmeTab();
+  if (name === 'timing') renderTimingTab();
+}
+
+// ========== MATERIALS ==========
+function renderMaterials() {
+  const tbody = document.getElementById('materials-body');
+  tbody.innerHTML = data.materials.map((m,i) => `
+    <tr>
+      <td>${i+1}</td><td>${m.name}</td><td>${m.supplier}</td><td>${m.spec}</td>
+      <td>${m.unit}</td><td>${m.origin}</td>
+      <td style="text-align:right;font-weight:600;">${Number(m.price).toLocaleString()}</td>
+      <td>${m.updated}</td><td>${m.person}</td><td>${m.monthly}</td>
+      <td style="text-align:left;font-size:12px;white-space:pre-line;max-width:200px;">${m.note}</td>
+      <td>
+        <button class="btn btn-sm btn-primary" onclick="editMaterial(${i})">수정</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteMaterial(${i})">삭제</button>
+      </td>
+    </tr>`).join('');
+}
+
+function openMaterialModal(idx) {
+  document.getElementById('material-modal').classList.add('show');
+  document.getElementById('m-modal-title').textContent = idx !== undefined ? '원소재 수정' : '원소재 추가';
+  document.getElementById('m-edit-idx').value = idx !== undefined ? idx : '';
+  const fields = ['m-name','m-supplier','m-spec','m-unit','m-origin','m-price','m-person','m-monthly','m-note'];
+  if (idx !== undefined) {
+    const m = data.materials[idx];
+    const keys = ['name','supplier','spec','unit','origin','price','person','monthly','note'];
+    fields.forEach((id,i) => document.getElementById(id).value = m[keys[i]] || '');
+  } else {
+    fields.forEach(id => document.getElementById(id).value = '');
+  }
+}
+function closeMaterialModal() { document.getElementById('material-modal').classList.remove('show'); }
+function editMaterial(i) { openMaterialModal(i); }
+function saveMaterial() {
+  const keys = ['name','supplier','spec','unit','origin','price','person','monthly','note'];
+  const ids  = ['m-name','m-supplier','m-spec','m-unit','m-origin','m-price','m-person','m-monthly','m-note'];
+  const m = {};
+  keys.forEach((k,i) => m[k] = ids[i]==='m-price' ? Number(document.getElementById(ids[i]).value) : document.getElementById(ids[i]).value);
+  m.updated = new Date().toISOString().slice(0,10);
+  const idx = document.getElementById('m-edit-idx').value;
+  if (idx !== '') data.materials[Number(idx)] = m;
+  else data.materials.push(m);
+  saveData(); closeMaterialModal(); renderMaterials();
+}
+function deleteMaterial(i) {
+  if (confirm(`"${data.materials[i].name}" 삭제하시겠습니까?`)) { data.materials.splice(i,1); saveData(); renderMaterials(); }
+}
+
+// ========== SUPPLIERS ==========
+function renderSuppliers() {
+  const tbody = document.getElementById('suppliers-body');
+  tbody.innerHTML = data.suppliers.map((s,i) => `
+    <tr>
+      <td>${i+1}</td><td>${s.name}</td>
+      <td style="text-align:left;font-size:12px;max-width:220px;">${s.address}</td>
+      <td>${s.ceo}</td><td style="font-size:12px;">${s.phone}</td><td style="font-size:12px;">${s.tel}</td>
+      <td style="font-size:12px;">${s.fax}</td><td style="font-size:12px;">${s.email}</td>
+      <td>${s.items}</td><td style="font-size:12px;">${s.payment}</td><td>${s.leadtime}</td>
+      <td style="font-size:12px;">${s.note}</td>
+      <td>
+        <button class="btn btn-sm btn-primary" onclick="editSupplier(${i})">수정</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteSupplier(${i})">삭제</button>
+      </td>
+    </tr>`).join('');
+}
+function openSupplierModal(idx) {
+  document.getElementById('supplier-modal').classList.add('show');
+  document.getElementById('s-modal-title').textContent = idx !== undefined ? '거래처 수정' : '거래처 추가';
+  document.getElementById('s-edit-idx').value = idx !== undefined ? idx : '';
+  const fields = ['name','address','ceo','phone','tel','fax','email','items','payment','leadtime','note'];
+  if (idx !== undefined) { const s=data.suppliers[idx]; fields.forEach(f=>document.getElementById('s-'+f).value=s[f]||''); }
+  else { fields.forEach(f=>document.getElementById('s-'+f).value=''); }
+}
+function closeSupplierModal() { document.getElementById('supplier-modal').classList.remove('show'); }
+function editSupplier(i) { openSupplierModal(i); }
+function saveSupplier() {
+  const fields = ['name','address','ceo','phone','tel','fax','email','items','payment','leadtime','note'];
+  const s = {}; fields.forEach(f=>s[f]=document.getElementById('s-'+f).value);
+  const idx = document.getElementById('s-edit-idx').value;
+  if (idx !== '') data.suppliers[Number(idx)]=s; else data.suppliers.push(s);
+  saveData(); closeSupplierModal(); renderSuppliers();
+}
+function deleteSupplier(i) {
+  if (confirm(`"${data.suppliers[i].name}" 삭제하시겠습니까?`)) { data.suppliers.splice(i,1); saveData(); renderSuppliers(); }
+}
+
+// ========== HISTORY ==========
+function onTypeChange() {
+  const type = document.getElementById('h-type').value;
+  const qtyLabel = document.getElementById('qty-label');
+  const unitDisp = document.getElementById('h-unit-display');
+  if (type === '입고') { qtyLabel.textContent='수량(kg)'; unitDisp.value='kg'; }
+  else { qtyLabel.textContent='판수'; unitDisp.value='판'; }
+  updateCalcPreview();
+}
+
+function calcConsumption(plates) {
+  const c = data.coefficients;
+  return {
+    kapA:    +(plates * c.kapA.value).toFixed(4),
+    kapC:    +(plates * c.kapC.value).toFixed(4),
+    film:    +(plates * c.film.value).toFixed(4),
+    fecl:    +(plates * c.fecl.value).toFixed(4),
+    kkPhoto: +(plates * c.kkPhoto.value).toFixed(4),
+    develop: +(plates * c.develop.value).toFixed(4),
+    caustic: +(plates * c.caustic.value).toFixed(4),
+    tape:    +(plates * c.tape.value).toFixed(4),
+    caco3:   +(plates * c.caco3.value).toFixed(4),
+  };
+}
+
+function updateCalcPreview() {
+  const type = document.getElementById('h-type').value;
+  const qty  = Number(document.getElementById('h-qty').value);
+  const p1 = document.getElementById('calc-preview');
+  const p2 = document.getElementById('calc-preview-emg');
+  p1.style.display='none'; p2.style.display='none';
+  if (!qty || type==='입고') return;
+  const c = calcConsumption(qty);
+  const txt = `카파루A: ${c.kapA}L, 카파루C: ${c.kapC}L, 필름: ${c.film}m, 염화철: ${c.fecl}kg, KK감광액: ${c.kkPhoto}L, 현상액: ${c.develop}kg, 가성소다: ${c.caustic}kg, 테이프: ${c.tape}m, 탄산칼슘: ${c.caco3}kg`;
+  if (type==='사용') { document.getElementById('calc-preview-text').textContent=txt; p1.style.display='block'; }
+  if (type==='비상소진(예비)') { document.getElementById('calc-preview-emg-text').textContent=txt; p2.style.display='block'; }
+}
+
+function addHistory() {
+  const date   = document.getElementById('h-date').value;
+  const type   = document.getElementById('h-type').value;
+  const spec   = document.getElementById('h-spec').value;
+  const qty    = Number(document.getElementById('h-qty').value);
+  const person = document.getElementById('h-person').value;
+  const note   = document.getElementById('h-note').value;
+  if (!date || !type || !qty) { alert('날짜, 유형, 수량을 입력하세요.'); return; }
+  const entry = { date, type, spec, qty, person, note, consumption: null };
+  if (type === '사용' || type === '비상소진(예비)') entry.consumption = calcConsumption(qty);
+  data.history.push(entry);
+  saveData();
+  ['h-date','h-qty','h-person','h-note'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('h-type').value='';
+  document.getElementById('h-unit-display').value='';
+  document.getElementById('calc-preview').style.display='none';
+  document.getElementById('calc-preview-emg').style.display='none';
+  renderHistory();
+}
+
+function deleteHistory(i) {
+  if (confirm('삭제하시겠습니까?')) { data.history.splice(i,1); saveData(); renderHistory(); }
+}
+
+function renderHistory() {
+  const filterMonth = document.getElementById('h-filter-month').value;
+  const filtered = data.history.map((h,i)=>({...h,idx:i})).filter(h => !filterMonth || (h.date&&h.date.startsWith(filterMonth)));
+  const isConsume = h => h.type==='사용' || h.type==='비상소진(예비)';
+  const isEmg = h => h.type==='비상소진(예비)';
+
+  document.getElementById('history-body').innerHTML = filtered.map((h,i) => {
+    const c = h.consumption;
+    const cls = isEmg(h) ? 'auto-calc-emg' : (isConsume(h) ? 'auto-calc' : '');
+    const unit = h.type==='입고' ? 'kg' : '판';
+    const typeColor = h.type==='입고'?'#43a047': (isEmg(h)?'#e65100':'#e53935');
+    return `<tr>
+      <td>${i+1}</td><td>${h.date}</td>
+      <td><span style="color:${typeColor};font-weight:700;">${h.type}</span></td>
+      <td>${h.spec}</td><td>${h.qty}</td><td>${unit}</td>
+      ${['kapA','kapC','film','fecl','kkPhoto','develop','caustic','tape','caco3'].map(k=>
+        `<td class="${cls}">${c?c[k]:''}</td>`).join('')}
+      <td>${h.person||''}</td><td>${h.note||''}</td>
+      <td><button class="btn btn-sm btn-danger" onclick="deleteHistory(${h.idx})">삭제</button></td>
+    </tr>`;
+  }).join('');
+
+  // Totals
+  const tot = { kapA:0,kapC:0,film:0,fecl:0,kkPhoto:0,develop:0,caustic:0,tape:0,caco3:0 };
+  let totPlates=0;
+  filtered.filter(h=>isConsume(h)&&h.consumption).forEach(h=>{
+    totPlates+=h.qty;
+    Object.keys(tot).forEach(k=>tot[k]+=Number(h.consumption[k]));
+  });
+  document.getElementById('history-foot').innerHTML = `
+    <tr class="total-row">
+      <td colspan="4">합계 (사용+비상소진)</td><td>${totPlates}</td><td>판</td>
+      ${Object.values(tot).map(v=>`<td>${+v.toFixed(3)}</td>`).join('')}
+      <td colspan="3"></td>
+    </tr>`;
+}
+
+function renderCoefficients() {
+  document.getElementById('coeff-display').innerHTML =
+    Object.entries(data.coefficients).map(([k,v])=>
+      `<div class="coeff-item"><span class="name">${v.name}</span><span class="val">${v.value}</span></div>`
+    ).join('');
+}
+
+// ========== INVENTORY ==========
+function calcInventory() {
+  return INVENTORY_ITEMS.map(item => {
+    let stock = data.initialStock[item.key] || 0;
+
+    data.history.forEach(h => {
+      const isConsume = h.type==='사용' || h.type==='비상소진(예비)';
+      const isEmg     = h.type==='비상소진(예비)';
+
+      // 구리판: 재고는 판 단위. 입고는 kg→판 변환, 사용/비상소진은 판 직접 차감
+      if (item.isCopper) {
+        if (h.type==='입고') {
+          // 입고 kg → 판 변환 후 두 공급사 균등 배분
+          stock += (h.qty / KG_PER_PLATE) / 2;
+        } else if (isConsume) {
+          // 사용/비상소진: qty는 판수
+          stock -= h.qty / 2;
+        }
+      }
+      // 카파루 일본: 비상소진만 차감
+      else if (item.isReserve && item.coeffKey) {
+        if (isEmg && h.consumption) stock -= Number(h.consumption[item.coeffKey]);
+      }
+      // 카파루 국내: 사용만 차감
+      else if (!item.isReserve && item.coeffKey && ['kapA','kapC'].includes(item.coeffKey)) {
+        if (h.type==='사용' && h.consumption) stock -= Number(h.consumption[item.coeffKey]);
+      }
+      // 필름: 사용 시 film 소모(m), 입고 시 m 추가
+      else if (['film24','film28','film33'].includes(item.key)) {
+        if (isConsume && h.consumption) stock -= h.consumption.film / 3; // 균등 배분 (실제로는 필름 종류 선택 필요)
+      }
+      // 일반 소모품
+      else if (item.coeffKey && !['kapA','kapC'].includes(item.coeffKey)) {
+        if (isConsume && h.consumption) stock -= Number(h.consumption[item.coeffKey]);
+      }
+    });
+
+    const displayStock = +(stock / item.convFactor).toFixed(3);
+    const safety = data.safetyStock[item.key];
+    let status, statusClass;
+    if (safety === '예비재고') { status='예비재고'; statusClass='badge-reserve'; }
+    else if (safety===undefined||safety===null||safety==='') { status='안전재고 미설정'; statusClass='badge-none'; }
+    else if (displayStock <= 0) { status='소진'; statusClass='badge-danger'; }
+    else if (displayStock < Number(safety)) { status='부족'; statusClass='badge-danger'; }
+    else if (displayStock < Number(safety)*1.5) { status='적정'; statusClass='badge-ok'; }
+    else { status='충분'; statusClass='badge-good'; }
+
+    const stockValue = item.isCopper
+      ? +(displayStock * KG_PER_PLATE * item.price).toFixed(0)
+      : +(displayStock * item.price).toFixed(0);
+    return { ...item, rawStock:stock, displayStock, safety, status, statusClass, stockValue };
+  });
+}
+
+function renderInventory() {
+  const inv = calcInventory();
+  document.getElementById('inventory-body').innerHTML = inv.map((item,i) => `
+    <tr${item.isReserve?' style="background:#fffde7;"':''}>
+      <td>${i+1}</td><td>${item.name}</td><td>${item.supplier}</td><td>${item.spec}</td><td>${item.displayUnit}</td>
+      <td>${item.safety!==undefined&&item.safety!==null&&item.safety!==''?item.safety:'-'}</td>
+      <td style="font-weight:700;color:${item.displayStock<0?'#e53935':'#333'};">${item.displayStock.toLocaleString()}${item.isCopper?'<div style=\"font-size:10px;color:#888;font-weight:400;\">('+(item.displayStock*KG_PER_PLATE).toFixed(1)+'kg)</div>':''}</td>
+      <td><span class="badge ${item.statusClass}">${item.status}</span></td>
+      <td style="text-align:right;">${item.price.toLocaleString()}${item.isCopper?'<div style=\"font-size:10px;color:#888;\">(원/kg)</div>':''}</td>
+      <td style="text-align:right;font-weight:600;">${item.stockValue.toLocaleString()}</td>
+      <td>${item.usage}</td>
+      <td style="font-size:11px;text-align:left;white-space:pre-line;max-width:200px;">${item.note}</td>
+    </tr>`).join('');
+
+  const totalValue = inv.reduce((s,it)=>s+it.stockValue,0);
+  document.getElementById('inventory-foot').innerHTML = `
+    <tr class="total-row">
+      <td colspan="9" style="text-align:right;">총 재고금액</td>
+      <td style="text-align:right;font-size:15px;">${totalValue.toLocaleString()} 원</td>
+      <td colspan="2"></td>
+    </tr>`;
+
+  const warnings = inv.filter(it=>it.displayStock<0||it.status==='부족'||it.status==='소진');
+  const noSafety = inv.filter(it=>it.status==='안전재고 미설정'&&!it.isReserve);
+  document.getElementById('inv-summary').innerHTML = `
+    <div class="summary-card">
+      <div class="label">총 재고금액</div>
+      <div class="value">${totalValue.toLocaleString()}<span style="font-size:14px;">원</span></div>
+      <div class="sub">${inv.length}개 품목</div>
+    </div>
+    <div class="summary-card"${warnings.length?' style="border-left:4px solid #e53935;"':''}>
+      <div class="label">재고 부족/소진</div>
+      <div class="value" style="color:${warnings.length?'#e53935':'#43a047'};">${warnings.length}건</div>
+      <div class="sub">${warnings.map(w=>w.name).join(', ')||'없음'}</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">안전재고 미설정</div>
+      <div class="value" style="color:#ff9800;">${noSafety.length}건</div>
+      <div class="sub">${noSafety.length?'설정 필요':'완료'}</div>
+    </div>`;
+
+  document.getElementById('inv-warnings').innerHTML = [
+    '필름 28\'·33\' — 월 사용량 미파악, 용도별 사용량 추적 필요',
+    '카파루 A·C — 케이앤디(일본)/광일글로벌(국내) 재고 구분 관리 필요',
+    '염화철 0.38/0.43 — 두 농도 병행 사용, 농도별 재고 실사 필요',
+    'KK감광액·현상액·가성소다·테이프·탄산칼슘 — 현재재고 현장 확인 의존',
+  ].map((t,i)=>`<p><strong>${i+1}.</strong> ${t}</p>`).join('');
+}
+
+// Init Stock
+function openInitStockModal() {
+  document.getElementById('initstock-modal').classList.add('show');
+  document.getElementById('initstock-fields').innerHTML = INVENTORY_ITEMS.map(item=>`
+    <div class="form-group" style="margin-bottom:8px;">
+      <label>${item.name} / ${item.supplier} (${item.spec}) — ${item.displayUnit}${item.isCopper?' (1판='+KG_PER_PLATE+'kg)':''}</label>
+      <input type="number" id="is-${item.key}" value="${data.initialStock[item.key]||0}" step="any">
+    </div>`).join('');
+}
+function saveInitStock() {
+  INVENTORY_ITEMS.forEach(item=>{ data.initialStock[item.key]=Number(document.getElementById('is-'+item.key).value)||0; });
+  saveData(); closeModal('initstock-modal'); renderInventory();
+}
+
+// Safety Stock
+function openSafetyStockModal() {
+  document.getElementById('safetystock-modal').classList.add('show');
+  document.getElementById('safetystock-fields').innerHTML = INVENTORY_ITEMS.map(item=>`
+    <div class="form-group" style="margin-bottom:8px;">
+      <label>${item.name} / ${item.supplier} [${item.displayUnit}]</label>
+      <input type="text" id="ss-${item.key}" value="${data.safetyStock[item.key]||''}" placeholder="미설정">
+    </div>`).join('');
+}
+function saveSafetyStock() {
+  INVENTORY_ITEMS.forEach(item=>{
+    const v=document.getElementById('ss-'+item.key).value;
+    if(v!=='') data.safetyStock[item.key]=isNaN(Number(v))?v:Number(v);
+    else delete data.safetyStock[item.key];
+  });
+  saveData(); closeModal('safetystock-modal'); renderInventory();
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+// ========== EXCHANGE RATE ==========
+let currentRate = null;
+let currentLmePriceT = null; // USD/tonne
+let lmeHistory = [];
+let lmeLoadError = null;
+
+async function fetchExchangeRate() {
+  try {
+    const res = await fetch('https://open.er-api.com/v6/latest/USD');
+    const json = await res.json();
+    currentRate = Math.round(json.rates.KRW * 100) / 100;
+    localStorage.setItem('fx_usd_krw_copper', JSON.stringify({ rate: currentRate, time: new Date().toISOString() }));
+  } catch(e) {
+    const cached = localStorage.getItem('fx_usd_krw_copper');
+    if (cached) currentRate = JSON.parse(cached).rate;
+  }
+}
+
+async function fetchLmePrice() {
+  const yahooUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/HG%3DF?interval=1d&range=1mo&includePrePost=false';
+
+  // Yahoo Finance 결과 파싱 헬퍼
+  function parseYahoo(json) {
+    const result = json?.chart?.result?.[0];
+    if (!result || !result.timestamp) return null;
+    const timestamps = result.timestamp;
+    const closes = result.indicators.quote[0].close;
+    const meta = result.meta;
+    const pricePerLb = meta.regularMarketPrice || closes.filter(Boolean).pop();
+    const prevClose  = meta.chartPreviousClose || closes.filter(Boolean).slice(-2)[0];
+    const priceT = +(pricePerLb * 2204.62).toFixed(2);
+    const changeT = +((pricePerLb - prevClose) * 2204.62).toFixed(2);
+    const history = timestamps.map((ts, idx) => ({
+      date: new Date(ts * 1000).toLocaleDateString('ko-KR', { month:'2-digit', day:'2-digit' }),
+      price: closes[idx] ? +(closes[idx] * 2204.62).toFixed(0) : null,
+    })).filter(d => d.price);
+    return { priceT, changeT, history };
+  }
+
+  // 여러 CORS 프록시 + 대안 API 순서대로 시도
+  const attempts = [
+    // 1) corsproxy.org (corsproxy.io 대안)
+    { name:'corsproxy.org', fn: () =>
+      fetch('https://corsproxy.org/?' + encodeURIComponent(yahooUrl), { signal: AbortSignal.timeout(8000) })
+        .then(r => r.json()).then(parseYahoo) },
+    // 2) api.codetabs.com 프록시
+    { name:'codetabs', fn: () =>
+      fetch('https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(yahooUrl), { signal: AbortSignal.timeout(8000) })
+        .then(r => r.json()).then(parseYahoo) },
+    // 3) allorigins (JSON 래퍼 풀기)
+    { name:'allorigins', fn: () =>
+      fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(yahooUrl), { signal: AbortSignal.timeout(8000) })
+        .then(r => r.json()).then(parseYahoo) },
+    // 4) corsproxy.io (유료 전환 가능성 있으나 재시도)
+    { name:'corsproxy.io', fn: () =>
+      fetch('https://corsproxy.io/?' + encodeURIComponent(yahooUrl), { signal: AbortSignal.timeout(8000) })
+        .then(r => r.json()).then(parseYahoo) },
+    // 5) Yahoo query2 직접 시도
+    { name:'query2-direct', fn: () =>
+      fetch('https://query2.finance.yahoo.com/v8/finance/chart/HG%3DF?interval=1d&range=1mo', { signal: AbortSignal.timeout(8000) })
+        .then(r => r.json()).then(parseYahoo) },
+    // 6) Yahoo query1 직접 시도 (일부 브라우저/환경에서 CORS 허용)
+    { name:'query1-direct', fn: () =>
+      fetch(yahooUrl, { signal: AbortSignal.timeout(8000) })
+        .then(r => r.json()).then(parseYahoo) },
+  ];
+
+  for (let i = 0; i < attempts.length; i++) {
+    try {
+      const parsed = await attempts[i].fn();
+      if (!parsed) continue;
+      currentLmePriceT = parsed.priceT;
+      lmeHistory = parsed.history;
+      const cache = { priceT: parsed.priceT, changeT: parsed.changeT, history: parsed.history,
+                      time: new Date().toISOString(), source: attempts[i].name };
+      localStorage.setItem('lme_copper_cache', JSON.stringify(cache));
+      lmeLoadError = null;
+      console.log('LME 데이터 로드 성공:', attempts[i].name);
+      return cache;
+    } catch(e) { console.log('LME 시도 실패:', attempts[i].name, e.message); }
+  }
+
+  // 모든 시도 실패 → 캐시 사용
+  const cached = localStorage.getItem('lme_copper_cache');
+  if (cached) {
+    const c = JSON.parse(cached);
+    currentLmePriceT = c.priceT;
+    lmeHistory = c.history || [];
+    const cacheAge = Math.round((Date.now() - new Date(c.time).getTime()) / 3600000);
+    lmeLoadError = `API 연결 실패 — 캐시 데이터 사용 중 (${cacheAge}시간 전, ${c.source || '알수없음'} 경유)`;
+    return c;
+  }
+
+  lmeLoadError = 'API 연결 실패. 하단 수동 입력을 이용하세요.';
+  return null;
+}
+
+async function fetchAll() {
+  document.getElementById('fx-rate-display').textContent='조회중...';
+  document.getElementById('fx-lme-display').textContent='조회중...';
+
+  await Promise.all([fetchExchangeRate(), fetchLmePrice()]);
+
+  updateFxBar();
+  renderMaterials();
+  if (document.getElementById('tab-inventory').classList.contains('active')) renderInventory();
+  if (document.getElementById('tab-lme').classList.contains('active')) renderLmeTab();
+
+  document.getElementById('fx-time-display').textContent =
+    '업데이트: ' + new Date().toLocaleTimeString('ko-KR');
+}
+
+function updateFxBar() {
+  document.getElementById('fx-rate-display').textContent =
+    currentRate ? '₩' + currentRate.toLocaleString() : '-';
+
+  if (currentLmePriceT) {
+    document.getElementById('fx-lme-display').textContent =
+      '$' + Math.round(currentLmePriceT).toLocaleString();
+    const krwKg = currentRate ? Math.round(currentLmePriceT * currentRate / 1000) : null;
+    document.getElementById('fx-copper-krw').textContent = krwKg ? krwKg.toLocaleString() : '-';
+  } else {
+    document.getElementById('fx-lme-display').textContent = lmeLoadError ? '연결실패' : '-';
+    document.getElementById('fx-copper-krw').textContent = '-';
+  }
+}
+
+// ========== LME TAB ==========
+function renderLmeTab() {
+  const cached = localStorage.getItem('lme_copper_cache');
+  if (!currentLmePriceT && cached) {
+    const c = JSON.parse(cached);
+    currentLmePriceT = c.priceT;
+    lmeHistory = c.history || [];
+  }
+
+  if (currentLmePriceT) {
+    const priceT = currentLmePriceT;
+    const priceLb = +(priceT / 2204.62).toFixed(4);
+    const krwKg = currentRate ? Math.round(priceT * currentRate / 1000) : null;
+    const purchasePrice = 23000;
+    const premium = krwKg ? (purchasePrice - krwKg) : null;
+
+    document.getElementById('lme-main-price').textContent = '$' + Math.round(priceT).toLocaleString();
+    document.getElementById('lme-per-lb').textContent = '$' + priceLb.toFixed(2);
+    document.getElementById('lme-krw-disp').textContent = krwKg ? krwKg.toLocaleString() : '-';
+    document.getElementById('lme-premium-disp').textContent = premium ? '+' + premium.toLocaleString() : '-';
+
+    document.getElementById('calc-lme-t').textContent = '$' + Math.round(priceT).toLocaleString();
+    document.getElementById('calc-fx').textContent = currentRate ? '₩' + currentRate.toLocaleString() : '-';
+    document.getElementById('calc-lme-krw-t').textContent = currentRate ? '₩' + Math.round(priceT*currentRate).toLocaleString() : '-';
+    document.getElementById('calc-lme-krw-kg').textContent = krwKg ? '₩' + krwKg.toLocaleString() : '-';
+    document.getElementById('calc-premium').textContent = premium ? '+₩' + premium.toLocaleString() : '-';
+
+    // Pre-fill manual inputs
+    document.getElementById('lme-manual-input').value = Math.round(priceT);
+    if (currentRate) document.getElementById('lme-fx-input').value = Math.round(currentRate);
+
+    const updatedAt = lmeLoadError
+      ? lmeLoadError
+      : '최종 업데이트: ' + new Date().toLocaleString('ko-KR') + ' (COMEX HG 선물 기준, 지연 가능)';
+    document.getElementById('lme-updated-at').textContent = updatedAt;
+  } else {
+    // 데이터 없을 때
+    document.getElementById('lme-main-price').textContent = '-';
+    document.getElementById('lme-updated-at').textContent =
+      lmeLoadError || 'LME 데이터를 불러오는 중입니다...';
+  }
+
+  if (lmeHistory.length > 1) {
+    drawChart();
+  } else {
+    document.getElementById('lme-chart-note').textContent =
+      lmeLoadError
+        ? 'API 연결 실패 — 하단 수동 입력란에 직접 값을 입력하세요.'
+        : '차트 데이터 로딩 중...';
+  }
+
+  updateFxBar();
+}
+
+function drawChart() {
+  const canvas = document.getElementById('lme-chart');
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth * window.devicePixelRatio || 800;
+  canvas.height = 240 * (window.devicePixelRatio || 1);
+  ctx.scale(window.devicePixelRatio||1, window.devicePixelRatio||1);
+  const W = canvas.offsetWidth, H = 240;
+
+  const prices = lmeHistory.map(d=>d.price).filter(Boolean);
+  const minP = Math.min(...prices) * 0.998;
+  const maxP = Math.max(...prices) * 1.002;
+  const pad = { l:70, r:20, t:20, b:40 };
+  const cw = W - pad.l - pad.r, ch = H - pad.t - pad.b;
+
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#fafafa'; ctx.fillRect(0,0,W,H);
+
+  // Grid
+  ctx.strokeStyle='#e0e0e0'; ctx.lineWidth=1;
+  for (let i=0; i<=4; i++) {
+    const y = pad.t + ch * i/4;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cw,y); ctx.stroke();
+    const val = maxP - (maxP-minP)*i/4;
+    ctx.fillStyle='#999'; ctx.font='11px Malgun Gothic'; ctx.textAlign='right';
+    ctx.fillText('$'+Math.round(val).toLocaleString(), pad.l-6, y+4);
+  }
+
+  // Line
+  ctx.beginPath(); ctx.strokeStyle='#c62828'; ctx.lineWidth=2;
+  lmeHistory.forEach((d,i) => {
+    if (!d.price) return;
+    const x = pad.l + cw*i/(lmeHistory.length-1);
+    const y = pad.t + ch*(1-(d.price-minP)/(maxP-minP));
+    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+
+  // Fill
+  const last = lmeHistory[lmeHistory.length-1];
+  const lastX = pad.l+cw;
+  const lastY = pad.t+ch*(1-(last.price-minP)/(maxP-minP));
+  ctx.lineTo(lastX, pad.t+ch); ctx.lineTo(pad.l, pad.t+ch);
+  ctx.closePath(); ctx.fillStyle='rgba(198,40,40,0.08)'; ctx.fill();
+
+  // X labels (every 5 days)
+  ctx.fillStyle='#999'; ctx.font='11px Malgun Gothic'; ctx.textAlign='center';
+  lmeHistory.forEach((d,i) => {
+    if (i%5===0 || i===lmeHistory.length-1) {
+      const x = pad.l+cw*i/(lmeHistory.length-1);
+      ctx.fillText(d.date, x, H-10);
+    }
+  });
+
+  document.getElementById('lme-chart-note').textContent =
+    `${lmeHistory[0].date} ~ ${lmeHistory[lmeHistory.length-1].date} | 최저: $${Math.min(...prices).toLocaleString()} | 최고: $${Math.max(...prices).toLocaleString()} (USD/tonne)`;
+}
+
+function applyManualLme() {
+  const priceT = Number(document.getElementById('lme-manual-input').value);
+  const fx = Number(document.getElementById('lme-fx-input').value);
+  if (!priceT) { document.getElementById('lme-manual-result').textContent=''; return; }
+  const krwKg = fx ? Math.round(priceT * fx / 1000) : null;
+  const premium = krwKg ? 23000 - krwKg : null;
+  document.getElementById('lme-manual-result').innerHTML =
+    `<strong>LME 기준 원가:</strong> ${krwKg?'₩'+krwKg.toLocaleString()+'/kg':'환율 입력 필요'}<br>` +
+    `<strong>프리미엄:</strong> ${premium?'+₩'+premium.toLocaleString()+'/kg (가공·납품마진 등)':''}`;
+}
+
+// ========== TIMING TAB ==========
+const DEFAULT_PURCHASE_PRICES = {
+  2017: [null,9220,9220,null,9220,8850,8840,9190,null,9890,10140,9980],
+  2018: [null,9990,10000,9710,9730,null,10040,9440,9180,9160,9450,9410],
+  2019: [9370,9180,9580,9840,9900,9680,9440,null,9520,9420,9330,9370],
+  2020: [9670,9580,9320,8690,8700,8950,9340,10180,10280,10340,10090,10460],
+  2021: [11080,11350,12030,12840,13110,null,null,13470,13540,13540,14280,14260],
+  2022: [null,14610,15060,15670,15720,15040,14580,12970,13650,13790,14130,14130],
+  2023: [14040,14430,14590,14610,14860,13990,14120,14010,null,14210,13920,13920],
+  2024: [14050,14200,14220,14720,16250,17040,16750,16330,16550,15760,15970,15970],
+  2025: [16410,null,16410,17660,16630,16730,16890,16900,null,null,null,null],
+  2026: [null,23000,null,null,null,null,null,null,null,null,null,null],
+};
+
+function getPurchasePrices() {
+  const saved = localStorage.getItem('copper_purchase_prices');
+  if (saved) { try { return JSON.parse(saved); } catch(e) {} }
+  return JSON.parse(JSON.stringify(DEFAULT_PURCHASE_PRICES));
+}
+function savePurchasePrices(pp) { localStorage.setItem('copper_purchase_prices', JSON.stringify(pp)); }
+
+function getLmeRefPrices() {
+  const saved = localStorage.getItem('copper_lme_ref');
+  if (saved) try { return JSON.parse(saved); } catch(e){}
+  return {};
+}
+function saveLmeRefPrices(r) { localStorage.setItem('copper_lme_ref', JSON.stringify(r)); }
+function setLmeRef(year, value) {
+  const ref = getLmeRefPrices();
+  if (value && Number(value) > 0) ref[year] = Number(value);
+  else delete ref[year];
+  saveLmeRefPrices(ref);
+  renderTimingTab();
+}
+
+function openAddPriceModal() {
+  document.getElementById('ap-year').value = new Date().getFullYear();
+  document.getElementById('addprice-modal').classList.add('show');
+}
+function saveAddPrice() {
+  const y = Number(document.getElementById('ap-year').value);
+  const m = Number(document.getElementById('ap-month').value);
+  const p = Number(document.getElementById('ap-price').value);
+  if (!y||!m||!p) { alert('연도, 월, 단가를 모두 입력하세요.'); return; }
+  const pp = getPurchasePrices();
+  if (!pp[y]) pp[y] = [null,null,null,null,null,null,null,null,null,null,null,null];
+  pp[y][m-1] = p;
+  savePurchasePrices(pp);
+  closeModal('addprice-modal');
+  renderTimingTab();
+}
+
+function renderTimingTab() {
+  const pp = getPurchasePrices();
+  renderPricingTable(pp);
+  renderSeasonBar(pp);
+  renderTimingSignal(pp);
+  renderPremiumAnalysis(pp);
+  drawPricingChart(pp);
+}
+
+function renderPricingTable(pp) {
+  const years = Object.keys(pp).map(Number).sort();
+  const lmeRef = getLmeRefPrices();
+  const lmeKrwKg = (currentLmePriceT && currentRate) ? Math.round(currentLmePriceT * currentRate / 1000) : null;
+  const curYear = new Date().getFullYear();
+  // 현재 연도는 실시간 LME 기준원가 자동 반영
+  if (lmeKrwKg) lmeRef[curYear] = lmeKrwKg;
+
+  document.getElementById('pricing-head').innerHTML = '<tr><th>월별</th>' +
+    years.map(y=>`<th>${y-2000}년</th>`).join('') + '</tr>';
+
+  let rows = '';
+  for (let m = 0; m < 12; m++) {
+    rows += '<tr><td style="font-weight:700;">' + (m+1) + '월</td>';
+    years.forEach(y => {
+      const v = pp[y][m];
+      const ref = lmeRef[y];
+      if (v) {
+        const prem = ref ? v - ref : null;
+        rows += `<td style="text-align:right;">${v.toLocaleString()}`;
+        if (prem !== null) {
+          const pc = ((prem/ref)*100).toFixed(0);
+          rows += `<div style="font-size:10px;color:${prem>=0?'#e65100':'#2e7d32'};margin-top:1px;">${prem>=0?'+':''}${prem.toLocaleString()} (${prem>=0?'+':''}${pc}%)</div>`;
+        }
+        rows += '</td>';
+      } else {
+        rows += '<td style="color:#ccc;">-</td>';
+      }
+    });
+    rows += '</tr>';
+  }
+  document.getElementById('pricing-body').innerHTML = rows;
+
+  // === Footer ===
+  let foot = '';
+
+  // 1) 연별 평균 매입단가
+  foot += '<tr class="total-row"><td>연별 평균</td>';
+  const yearAvgs = {};
+  years.forEach(y => {
+    const vals = pp[y].filter(v => v !== null);
+    const avg = vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : null;
+    yearAvgs[y] = avg;
+    foot += avg ? `<td style="text-align:right;font-weight:700;">${avg.toLocaleString()}</td>` : '<td>-</td>';
+  });
+  foot += '</tr>';
+
+  // 2) LME 기준원가 (원/kg) — 현재 연도 실시간, 과거 연도 수동 입력
+  foot += '<tr style="background:#fff8e1;"><td style="font-weight:600;font-size:12px;">LME 기준원가<br><span style="font-size:10px;color:#888;">(연평균, 원/kg)</span></td>';
+  years.forEach(y => {
+    const ref = lmeRef[y];
+    foot += '<td style="text-align:center;">';
+    if (y === curYear && lmeKrwKg) {
+      foot += `<strong style="color:#bf360c;">₩${lmeKrwKg.toLocaleString()}</strong><div style="font-size:9px;color:#888;">실시간</div>`;
+    } else if (ref) {
+      foot += `<strong>₩${ref.toLocaleString()}</strong>`;
+      foot += `<div style="font-size:9px;"><a href="javascript:void(0)" onclick="setLmeRef(${y},'')" style="color:#999;text-decoration:underline;">초기화</a></div>`;
+    } else {
+      foot += `<input type="number" style="width:72px;padding:3px 4px;border:1px solid #ddd;border-radius:3px;font-size:11px;text-align:right;" placeholder="입력" onchange="setLmeRef(${y},this.value)">`;
+    }
+    foot += '</td>';
+  });
+  foot += '</tr>';
+
+  // 3) 프리미엄 (원/kg)
+  foot += '<tr style="background:#fce4ec;"><td style="font-weight:600;font-size:12px;">프리미엄<br><span style="font-size:10px;color:#888;">(원/kg)</span></td>';
+  years.forEach(y => {
+    const avg = yearAvgs[y];
+    const ref = lmeRef[y];
+    const prem = (avg && ref) ? avg - ref : null;
+    if (prem !== null) {
+      foot += `<td style="text-align:right;font-weight:700;color:${prem>=0?'#c62828':'#2e7d32'};">${prem>=0?'+':''}${prem.toLocaleString()}</td>`;
+    } else {
+      foot += '<td style="color:#ccc;">-</td>';
+    }
+  });
+  foot += '</tr>';
+
+  // 4) 프리미엄율 (%)
+  foot += '<tr style="background:#fce4ec;"><td style="font-weight:600;font-size:12px;">프리미엄율<br><span style="font-size:10px;color:#888;">(%)</span></td>';
+  years.forEach(y => {
+    const avg = yearAvgs[y];
+    const ref = lmeRef[y];
+    const pct = (avg && ref) ? ((avg - ref) / ref * 100).toFixed(1) : null;
+    if (pct !== null) {
+      foot += `<td style="text-align:right;font-weight:600;font-size:13px;color:${Number(pct)>=0?'#c62828':'#2e7d32'};">${Number(pct)>=0?'+':''}${pct}%</td>`;
+    } else {
+      foot += '<td style="color:#ccc;">-</td>';
+    }
+  });
+  foot += '</tr>';
+
+  document.getElementById('pricing-foot').innerHTML = foot;
+}
+
+function renderSeasonBar(pp) {
+  const monthAvg = [];
+  for (let m = 0; m < 12; m++) {
+    const vals = Object.values(pp).map(arr => arr[m]).filter(v => v !== null);
+    monthAvg.push(vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : null);
+  }
+  const valid = monthAvg.filter(v => v !== null);
+  if (valid.length < 3) { document.getElementById('season-bar').innerHTML='<span style="color:#999;">데이터 부족</span>'; return; }
+  const minV = Math.min(...valid), maxV = Math.max(...valid);
+  const sorted = [...valid].sort((a,b)=>a-b);
+  const lowThresh = sorted[2]; // 하위 3개
+  const highThresh = sorted[sorted.length-3]; // 상위 3개
+
+  document.getElementById('season-bar').innerHTML = monthAvg.map((v,i) => {
+    if (v === null) return `<div class="season-col" style="height:5px;background:#e0e0e0;"><span class="s-label">${i+1}월</span></div>`;
+    const h = 15 + 65 * (v - minV) / (maxV - minV || 1);
+    const cls = v <= lowThresh ? 'low' : v >= highThresh ? 'high' : '';
+    return `<div class="season-col ${cls}" style="height:${h}px;" title="${(i+1)}월 평균: ${v.toLocaleString()}원/kg"><span class="s-label">${i+1}월</span></div>`;
+  }).join('');
+
+  const lowMonths = monthAvg.map((v,i)=>({v,m:i+1})).filter(d=>d.v!==null&&d.v<=lowThresh).map(d=>d.m+'월').join(', ');
+  const highMonths = monthAvg.map((v,i)=>({v,m:i+1})).filter(d=>d.v!==null&&d.v>=highThresh).map(d=>d.m+'월').join(', ');
+  document.getElementById('season-insight').innerHTML =
+    `<strong>저가 구간:</strong> ${lowMonths} (평균 대비 낮은 매입단가)<br>` +
+    `<strong>고가 구간:</strong> ${highMonths} (평균 대비 높은 매입단가)<br>` +
+    `<span style="color:#999;">* ${Object.keys(pp).length}개년 (${Object.keys(pp).sort()[0]}~${Object.keys(pp).sort().pop()}) 월별 평균 기준</span>`;
+}
+
+function renderTimingSignal(pp) {
+  const hero = document.getElementById('timing-hero');
+  const lmeKrwKg = (currentLmePriceT && currentRate) ? Math.round(currentLmePriceT * currentRate / 1000) : null;
+  const years = Object.keys(pp).map(Number).sort();
+  const latestYear = years[years.length - 1];
+  const latestPrices = pp[latestYear].filter(v => v !== null);
+  const lastPurchase = latestPrices.length ? latestPrices[latestPrices.length - 1] : null;
+
+  // LME 추세 분석 (최근 차트 데이터)
+  let trend = 'unknown', trendPct = 0;
+  if (lmeHistory.length >= 5) {
+    const recent5 = lmeHistory.slice(-5).map(d=>d.price).filter(Boolean);
+    const first = recent5[0], last = recent5[recent5.length-1];
+    trendPct = ((last - first) / first * 100).toFixed(1);
+    trend = trendPct > 1 ? 'up' : trendPct < -1 ? 'down' : 'flat';
+  }
+
+  // 시그널 결정
+  let signal, signalClass, headline, reasons = [];
+  const now = new Date();
+  const curMonth = now.getMonth(); // 0-based
+
+  // 월별 평균으로 계절성 확인
+  const monthVals = [];
+  for (let m = 0; m < 12; m++) {
+    const vals = Object.values(pp).map(a=>a[m]).filter(v=>v!==null);
+    monthVals.push(vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null);
+  }
+  const validMonths = monthVals.filter(v=>v!==null);
+  const avgAll = validMonths.reduce((a,b)=>a+b,0)/validMonths.length;
+  const curMonthAvg = monthVals[curMonth];
+  const isLowSeason = curMonthAvg && curMonthAvg < avgAll * 0.98;
+
+  if (!lmeKrwKg || !lastPurchase) {
+    signal = '데이터 대기'; signalClass = 'signal-hold';
+    headline = 'LME 시세 또는 매입단가 데이터가 필요합니다.';
+  } else if (trend === 'down' && lmeKrwKg < lastPurchase * 0.95) {
+    signal = '매수 적기'; signalClass = 'signal-buy';
+    headline = 'LME 하락 추세 + 현재 기준 원가가 최근 매입단가 대비 저렴합니다.';
+    reasons.push('LME 최근 5거래일 ' + trendPct + '% 변동 (하락세)');
+    reasons.push('LME 기준 원가 ₩' + lmeKrwKg.toLocaleString() + '/kg vs 최근 매입 ₩' + lastPurchase.toLocaleString() + '/kg');
+    if (isLowSeason) reasons.push((curMonth+1) + '월은 역사적으로 저가 구간입니다.');
+  } else if (trend === 'up' && lmeKrwKg > lastPurchase) {
+    signal = '관망'; signalClass = 'signal-wait';
+    headline = 'LME 상승 추세입니다. 재고 상황을 확인하고 신중하게 판단하세요.';
+    reasons.push('LME 최근 5거래일 +' + trendPct + '% 상승');
+    reasons.push('LME 기준 원가가 최근 매입단가를 상회');
+    reasons.push('재고가 충분하다면 하락 반전을 기다리는 것이 유리');
+  } else if (trend === 'down') {
+    signal = '매수 검토'; signalClass = 'signal-buy';
+    headline = 'LME 하락 추세입니다. 추가 하락 여부를 관찰하며 매수를 검토하세요.';
+    reasons.push('LME 최근 5거래일 ' + trendPct + '% 변동');
+    reasons.push('추가 하락 시 더 유리한 단가 확보 가능');
+  } else {
+    signal = '보합'; signalClass = 'signal-hold';
+    headline = 'LME 시세가 안정적입니다. 정기 발주 일정에 따라 진행하세요.';
+    reasons.push('LME 최근 5거래일 변동 ' + (trendPct > 0 ? '+' : '') + trendPct + '% (보합)');
+    if (lmeKrwKg && lastPurchase) reasons.push('LME 기준 원가 ₩' + lmeKrwKg.toLocaleString() + '/kg vs 최근 매입 ₩' + lastPurchase.toLocaleString() + '/kg');
+  }
+
+  hero.className = 'timing-hero ' + signalClass;
+  document.getElementById('timing-signal').textContent = signal;
+  document.getElementById('timing-headline').textContent = headline;
+  document.getElementById('timing-reason').innerHTML = reasons.map(r => '• ' + r).join('<br>');
+  document.getElementById('timing-updated').textContent = '분석 시점: ' + new Date().toLocaleString('ko-KR');
+
+  // KPI cards
+  const premium = (lmeKrwKg && lastPurchase) ? lastPurchase - lmeKrwKg : null;
+  const premiumPct = (premium && lmeKrwKg) ? (premium / lmeKrwKg * 100).toFixed(1) : null;
+  document.getElementById('timing-kpi').innerHTML = [
+    { l:'LME 기준원가', v: lmeKrwKg ? '₩'+lmeKrwKg.toLocaleString() : '-', s:'원/kg' },
+    { l:'최근 매입단가', v: lastPurchase ? '₩'+lastPurchase.toLocaleString() : '-', s:'원/kg ('+latestYear+'년)' },
+    { l:'프리미엄', v: premium!==null ? (premium>=0?'+':'')+premium.toLocaleString() : '-', s: premiumPct ? premiumPct+'%' : '원/kg' },
+    { l:'LME 추세', v: trend==='up'?'▲ 상승':trend==='down'?'▼ 하락':'► 보합', s:'최근 5거래일' },
+    { l:'환율', v: currentRate ? '₩'+currentRate.toLocaleString() : '-', s:'USD/KRW' },
+    { l:'현재 월', v: (curMonth+1)+'월', s: isLowSeason?'저가 구간':'일반 구간' },
+  ].map(k => `<div class="timing-kpi-item"><div class="kl">${k.l}</div><div class="kv">${k.v}</div><div class="ks">${k.s}</div></div>`).join('');
+}
+
+function renderPremiumAnalysis(pp) {
+  const el = document.getElementById('premium-analysis');
+  if (!currentLmePriceT || !currentRate) {
+    el.innerHTML = '<span style="color:#999;">LME 시세 또는 환율 데이터를 로딩 중입니다.</span>';
+    return;
+  }
+  const lmeKrwKg = Math.round(currentLmePriceT * currentRate / 1000);
+  const years = Object.keys(pp).map(Number).sort();
+  // 최근 3개년 평균 매입단가
+  const recent3 = years.slice(-3);
+  const recentVals = recent3.flatMap(y => pp[y].filter(v=>v!==null));
+  const avgRecent = recentVals.length ? Math.round(recentVals.reduce((a,b)=>a+b,0)/recentVals.length) : null;
+  const allVals = Object.values(pp).flat().filter(v=>v!==null);
+  const avgTotal = allVals.length ? Math.round(allVals.reduce((a,b)=>a+b,0)/allVals.length) : null;
+
+  const latestYear = years[years.length-1];
+  const latestVals = pp[latestYear].filter(v=>v!==null);
+  const latestAvg = latestVals.length ? Math.round(latestVals.reduce((a,b)=>a+b,0)/latestVals.length) : null;
+  const latestLast = latestVals.length ? latestVals[latestVals.length-1] : null;
+
+  const rows = [
+    ['현재 LME 기준 원가', '₩'+lmeKrwKg.toLocaleString()+'/kg', ''],
+    ['현재 구매 단가 (동연금속)', '₩23,000/kg', ''],
+    ['현재 프리미엄', '₩'+(23000-lmeKrwKg).toLocaleString()+'/kg', ((23000-lmeKrwKg)/lmeKrwKg*100).toFixed(1)+'%'],
+    ['─────','',''],
+    [latestYear+'년 최종 매입', latestLast?'₩'+latestLast.toLocaleString()+'/kg':'-', ''],
+    [latestYear+'년 평균 매입', latestAvg?'₩'+latestAvg.toLocaleString()+'/kg':'-', ''],
+    ['최근 3개년 평균', avgRecent?'₩'+avgRecent.toLocaleString()+'/kg':'-', ''],
+    ['전체 평균 ('+years[0]+'~'+latestYear+')', avgTotal?'₩'+avgTotal.toLocaleString()+'/kg':'-', ''],
+  ];
+  el.innerHTML = rows.map(r => r[0].startsWith('──') ?
+    '<div style="border-top:1px solid #e0e0e0;margin:4px 0;"></div>' :
+    `<div style="display:flex;justify-content:space-between;"><span>${r[0]}</span><span style="font-weight:600;">${r[1]} ${r[2]?'<span style=\"color:#888;font-size:11px;\">('+r[2]+')</span>':''}</span></div>`
+  ).join('');
+}
+
+function drawPricingChart(pp) {
+  const canvas = document.getElementById('pricing-chart');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = canvas.offsetWidth * dpr;
+  canvas.height = 300 * dpr;
+  ctx.scale(dpr, dpr);
+  const W = canvas.offsetWidth, H = 300;
+  const pad = { l:60, r:20, t:20, b:50 };
+  const cw = W-pad.l-pad.r, ch = H-pad.t-pad.b;
+
+  const years = Object.keys(pp).map(Number).sort();
+  const allVals = Object.values(pp).flat().filter(v=>v!==null);
+  if (!allVals.length) return;
+  const minP = Math.min(...allVals)*0.95, maxP = Math.max(...allVals)*1.02;
+
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#fafafa'; ctx.fillRect(0,0,W,H);
+
+  // Grid
+  ctx.strokeStyle='#e0e0e0'; ctx.lineWidth=1;
+  for (let i=0;i<=5;i++) {
+    const y=pad.t+ch*i/5;
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+cw,y);ctx.stroke();
+    const val=maxP-(maxP-minP)*i/5;
+    ctx.fillStyle='#999';ctx.font='11px Malgun Gothic';ctx.textAlign='right';
+    ctx.fillText('₩'+Math.round(val).toLocaleString(),pad.l-6,y+4);
+  }
+
+  // X labels (months)
+  ctx.fillStyle='#999';ctx.font='11px Malgun Gothic';ctx.textAlign='center';
+  for(let m=0;m<12;m++){
+    const x=pad.l+cw*m/11;
+    ctx.fillText((m+1)+'월',x,H-10);
+  }
+
+  // Lines per year
+  const colors = ['#bdbdbd','#bdbdbd','#bdbdbd','#9e9e9e','#9e9e9e','#757575','#757575','#1565c0','#c62828'];
+  const recentColors = {};
+  years.forEach((y,yi) => { recentColors[y] = colors[Math.min(yi, colors.length-1)]; });
+
+  // Draw older years first, newest on top
+  years.forEach((y,yi) => {
+    const arr = pp[y];
+    const c = recentColors[y];
+    const isLatest = yi === years.length-1;
+    const isPrev = yi === years.length-2;
+    ctx.beginPath(); ctx.strokeStyle=c; ctx.lineWidth = isLatest?3:isPrev?2:1;
+    if (isLatest || isPrev) ctx.setLineDash([]); else ctx.setLineDash([4,4]);
+    let started = false;
+    arr.forEach((v,m) => {
+      if (v===null) { started=false; return; }
+      const x=pad.l+cw*m/11;
+      const yy=pad.t+ch*(1-(v-minP)/(maxP-minP));
+      started ? ctx.lineTo(x,yy) : ctx.moveTo(x,yy);
+      started=true;
+    });
+    ctx.stroke(); ctx.setLineDash([]);
+
+    // Label at end of line
+    if (isLatest || isPrev) {
+      const lastIdx = arr.reduce((li,v,i)=>v!==null?i:li,-1);
+      if (lastIdx>=0) {
+        const x=pad.l+cw*lastIdx/11+4;
+        const yy=pad.t+ch*(1-(arr[lastIdx]-minP)/(maxP-minP));
+        ctx.fillStyle=c;ctx.font='bold 11px Malgun Gothic';ctx.textAlign='left';
+        ctx.fillText((y-2000)+'년',x,yy+3);
+      }
+    }
+  });
+
+  // Legend
+  document.getElementById('pricing-chart-legend').innerHTML =
+    years.map((y,i) => {
+      const c = recentColors[y];
+      const vals = pp[y].filter(v=>v!==null);
+      const avg = vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : '-';
+      return `<span style="color:${c};margin-right:12px;${i>=years.length-2?'font-weight:700':''}">━ ${y-2000}년 (평균:${typeof avg==='number'?avg.toLocaleString():avg})</span>`;
+    }).join('');
+}
+
+// ========== CSV ==========
+function exportCSV(type) {
+  let csv = '\uFEFF';
+  if (type==='materials') {
+    csv += '원소재명,공급업체,규격,구매단위,원산지,단가,최종업데이트,담당자,월사용량,비고\n';
+    data.materials.forEach(m=>csv+=[m.name,m.supplier,m.spec,m.unit,m.origin,m.price,m.updated,m.person,m.monthly,`"${(m.note||'').replace(/"/g,'""')}"`].join(',')+'\n');
+  } else if (type==='suppliers') {
+    csv += '거래처명,주소,대표,휴대폰,회사전화,팩스,이메일,공급품목,결제조건,리드타임\n';
+    data.suppliers.forEach(s=>csv+=[s.name,`"${s.address}"`,s.ceo,s.phone,s.tel,s.fax,s.email,s.items,s.payment,s.leadtime].join(',')+'\n');
+  } else if (type==='history') {
+    csv += '날짜,유형,규격,수량,단위,카파루A(L),카파루C(L),필름(m),염화철(kg),KK감광액(L),현상액(kg),가성소다(kg),테이프(m),탄산칼슘(kg),담당자,비고\n';
+    data.history.forEach(h=>{
+      const c=h.consumption; const unit=h.type==='입고'?'kg':'판';
+      csv+=[h.date,h.type,h.spec,h.qty,unit,c?c.kapA:'',c?c.kapC:'',c?c.film:'',c?c.fecl:'',c?c.kkPhoto:'',c?c.develop:'',c?c.caustic:'',c?c.tape:'',c?c.caco3:'',h.person||'',h.note||''].join(',')+'\n';
+    });
+  } else if (type==='pricing') {
+    const pp = getPurchasePrices();
+    const years = Object.keys(pp).map(Number).sort();
+    csv += '월,' + years.map(y=>(y-2000)+'년').join(',') + '\n';
+    for (let m=0;m<12;m++) {
+      csv += (m+1)+'월,' + years.map(y=>pp[y][m]||'').join(',') + '\n';
+    }
+    csv += '연별 평균,' + years.map(y=>{const v=pp[y].filter(x=>x!==null);return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length):'';}).join(',') + '\n';
+  } else if (type==='inventory') {
+    csv += '원소재명,공급업체,규격,단위,현재재고,재고상태,단가,재고금액\n';
+    calcInventory().forEach(it=>csv+=[it.name,it.supplier,it.spec,it.displayUnit,it.displayStock,it.status,it.price,it.stockValue].join(',')+'\n');
+  }
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `구리판_구매관리_${type}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+// ========== INIT ==========
+// Load cached values
+const cachedFx2 = localStorage.getItem('fx_usd_krw_copper');
+if (cachedFx2) currentRate = JSON.parse(cachedFx2).rate;
+const cachedLme = localStorage.getItem('lme_copper_cache');
+if (cachedLme) { const c=JSON.parse(cachedLme); currentLmePriceT=c.priceT; lmeHistory=c.history||[]; }
+
+document.getElementById('h-date').value = new Date().toISOString().slice(0,10);
+document.getElementById('h-unit-display').value = '판';
+
+renderMaterials();
+renderSuppliers();
+renderCoefficients();
+renderHistory();
+updateFxBar();
+
+fetchAll();
+</script>
+</body>
+</html>
