@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍱 오늘 점심 뭐 먹지?</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    user-select: none;
+  }
+  .card {
+    background: #fff;
+    border-radius: 28px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    padding: 36px 28px 32px;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+  }
+  h1 {
+    font-size: 1.6rem;
+    color: #4a4a6a;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    color: #999;
+    font-size: 0.9rem;
+    margin-bottom: 22px;
+  }
+  .window {
+    position: relative;
+    height: 130px;
+    border-radius: 20px;
+    background: linear-gradient(180deg, #fdfbfb 0%, #ebedee 100%);
+    border: 3px solid #f0f0f5;
+    overflow: hidden;
+    margin-bottom: 24px;
+    box-shadow: inset 0 4px 12px rgba(0,0,0,0.08);
+  }
+  .window::before, .window::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    height: 36px;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .window::before { top: 0; background: linear-gradient(180deg, rgba(255,255,255,0.95), transparent); }
+  .window::after { bottom: 0; background: linear-gradient(0deg, rgba(255,255,255,0.95), transparent); }
+  .pointer {
+    position: absolute;
+    top: 50%; transform: translateY(-50%);
+    width: 100%; height: 56px;
+    z-index: 3;
+    border-top: 2px dashed rgba(118,75,162,0.35);
+    border-bottom: 2px dashed rgba(118,75,162,0.35);
+    pointer-events: none;
+  }
+  .reel {
+    position: absolute;
+    width: 100%;
+    will-change: transform;
+  }
+  .item {
+    height: 56px;
+    line-height: 56px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #4a4a6a;
+    white-space: nowrap;
+  }
+  .item .emoji { margin-right: 8px; }
+  .result {
+    min-height: 30px;
+    font-size: 1.1rem;
+    color: #764ba2;
+    font-weight: 600;
+    margin-bottom: 22px;
+  }
+  .btn {
+    width: 100%;
+    border: none;
+    border-radius: 16px;
+    padding: 18px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.2s, background 0.3s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn.start {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    box-shadow: 0 8px 20px rgba(118,75,162,0.4);
+  }
+  .btn.stop {
+    background: linear-gradient(135deg, #f5576c, #f093fb);
+    box-shadow: 0 8px 20px rgba(245,87,108,0.4);
+  }
+  .hint {
+    margin-top: 16px;
+    font-size: 0.8rem;
+    color: #bbb;
+  }
+  .edit {
+    margin-top: 14px;
+    font-size: 0.82rem;
+    color: #999;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .editor { margin-top: 14px; display: none; }
+  .editor.show { display: block; }
+  .editor textarea {
+    width: 100%;
+    height: 110px;
+    border-radius: 12px;
+    border: 2px solid #eee;
+    padding: 10px;
+    font-size: 0.9rem;
+    resize: vertical;
+    font-family: inherit;
+  }
+  .editor button {
+    margin-top: 8px;
+    border: none;
+    background: #764ba2;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>🍱 오늘 점심 뭐 먹지?</h1>
+    <div class="subtitle">시작을 누르면 메뉴가 돌아가요. 정지를 누른 메뉴가 오늘의 점심!</div>
+
+    <div class="window">
+      <div class="pointer"></div>
+      <div class="reel" id="reel"></div>
+    </div>
+
+    <div class="result" id="result"></div>
+
+    <button class="btn start" id="btn">▶ 시작</button>
+
+    <div class="hint">스페이스바로도 시작/정지할 수 있어요</div>
+    <div class="edit" id="editToggle">✏️ 메뉴 직접 바꾸기</div>
+    <div class="editor" id="editor">
+      <textarea id="menuInput"></textarea>
+      <button id="saveMenus">저장</button>
+    </div>
+  </div>
+
+<script>
+  let MENUS = [
+    "🍚 김치찌개", "🍛 카레", "🍗 치킨", "🍔 햄버거", "🥘 부대찌개",
+    "🌮 타코", "🍣 초밥", "🍲 순두부", "🥟 만두", "🍱 돈까스",
+    "🥩 삼겹살", "🍤 텐동", "🌶️ 마라탕", "🥗 샐러드", "🍛 비빔밥",
+    "🍖 갈비탕", "🍲 된장찌개", "🍢 어묵탕", "🥓 제육볶음", "🍗 닭갈비",
+    "🦆 오리주물럭", "🐔 삼계탕", "🍳 오므라이스", "🥩 스테이크", "🌯 부리토",
+    "🍛 하이라이스", "🦐 새우볶음밥", "🍚 소고기국밥", "🥘 낙지볶음", "🍲 감자탕",
+    "🐙 쭈꾸미볶음", "🍖 족발", "🥬 보쌈", "🥩 불고기", "🍳 계란말이밥",
+    "🦑 오징어덮밥", "🍲 알탕", "🥩 차돌박이", "🍱 회덮밥", "🌭 핫도그",
+    "🥪 샌드위치", "🧆 팔라펠", "🍛 규동", "🥘 곱창전골", "🍲 동태찌개"
+  ];
+
+  const reel = document.getElementById('reel');
+  const btn = document.getElementById('btn');
+  const result = document.getElementById('result');
+  const ITEM_H = 56;
+
+  let spinning = false;
+  let pos = 0;          // current translateY (px), negative as it moves up
+  let speed = 0;        // px per frame
+  let rafId = null;
+  let stopping = false;
+
+  function buildReel() {
+    reel.innerHTML = '';
+    // repeat menus a few times so the strip is long enough to loop
+    const repeated = [...MENUS, ...MENUS, ...MENUS];
+    for (const m of repeated) {
+      const div = document.createElement('div');
+      div.className = 'item';
+      div.textContent = m;
+      reel.appendChild(div);
+    }
+  }
+
+  function loopLength() { return MENUS.length * ITEM_H; }
+
+  function render() {
+    // keep pos within one menu-cycle so we can repeat forever
+    let p = pos % loopLength();
+    reel.style.transform = `translateY(${ -p }px)`;
+  }
+
+  function frame() {
+    pos += speed;
+    if (stopping) {
+      speed *= 0.97;            // friction
+      if (speed < 0.6) {        // settle onto a centered item
+        speed = 0;
+        snapToCenter();
+        finish();
+        return;
+      }
+    }
+    render();
+    rafId = requestAnimationFrame(frame);
+  }
+
+  function snapToCenter() {
+    // the pointer is at vertical center of the 130px window (offset ~37px from top of an item row)
+    // align so an item sits centered under the pointer
+    const centerOffset = (130/2) - (ITEM_H/2); // window center minus half item
+    let p = pos % loopLength();
+    const nearest = Math.round((p - centerOffset) / ITEM_H) * ITEM_H + centerOffset;
+    pos = nearest;
+    render();
+  }
+
+  function currentMenu() {
+    const centerOffset = (130/2) - (ITEM_H/2);
+    let p = ((pos - centerOffset) % loopLength() + loopLength()) % loopLength();
+    const idx = Math.round(p / ITEM_H) % MENUS.length;
+    return MENUS[idx];
+  }
+
+  function start() {
+    if (spinning) return;
+    spinning = true;
+    stopping = false;
+    result.textContent = '';
+    speed = 28;                 // initial fast speed
+    btn.textContent = '⏹ 정지';
+    btn.classList.remove('start');
+    btn.classList.add('stop');
+    rafId = requestAnimationFrame(frame);
+  }
+
+  function requestStop() {
+    if (!spinning || stopping) return;
+    stopping = true;
+  }
+
+  function finish() {
+    cancelAnimationFrame(rafId);
+    spinning = false;
+    stopping = false;
+    const menu = currentMenu();
+    result.textContent = `오늘 점심은 ${menu} 👏`;
+    btn.textContent = '▶ 다시';
+    btn.classList.remove('stop');
+    btn.classList.add('start');
+  }
+
+  btn.addEventListener('click', () => {
+    if (spinning) requestStop();
+    else start();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') {
+      e.preventDefault();
+      if (spinning) requestStop();
+      else start();
+    }
+  });
+
+  // menu editor
+  const editToggle = document.getElementById('editToggle');
+  const editor = document.getElementById('editor');
+  const menuInput = document.getElementById('menuInput');
+  editToggle.addEventListener('click', () => {
+    editor.classList.toggle('show');
+    menuInput.value = MENUS.join('\n');
+  });
+  document.getElementById('saveMenus').addEventListener('click', () => {
+    const lines = menuInput.value.split('\n').map(s => s.trim()).filter(Boolean);
+    if (lines.length >= 2) {
+      MENUS = lines;
+      buildReel();
+      pos = 0; render();
+      result.textContent = '메뉴를 저장했어요!';
+      editor.classList.remove('show');
+    } else {
+      alert('메뉴는 2개 이상 입력해 주세요.');
+    }
+  });
+
+  buildReel();
+  render();
+</script>
+</body>
+</html>
